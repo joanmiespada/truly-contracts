@@ -10,8 +10,6 @@ contract PureNFT {
     address private _contractOwner;
 
     enum nNftState { Trading, Inactive }
-    
-    
 
     struct nNft {
         //nNftOwners[] nftOwners;
@@ -28,12 +26,13 @@ contract PureNFT {
     }
 
     mapping(string => nNft) private _UsersWithNfts;
-    //itmap private _UsersWithNfts;
 
     uint256 private _counter;
 
-    event Minted(address, string, uint256);
-    event Transfered(address, string, address, uint256);
+    event ContractSetupCompleted(address owner);
+    event Minted(address owner, string token);
+   // event Transfered(address from, string token, address to, uint256 percent);
+    event Transfered(string token, uint percentatge, address from, uint newFromPercentatge, address to, uint newToPercentate );
     event Sold(address, string, uint, string, string, address[]);
     event Withdrawn (address, uint);
     event WithdrawnWithError(address, uint);
@@ -49,21 +48,27 @@ contract PureNFT {
     error NoMoneyToWithdraw();
 
     constructor() {
+        //require(_contractOwner != address(0), "Master address cannot be a zero address");
+
         _contractOwner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
         //emit OwnerSet(address(0), owner);
         _counter = 0;
+
+        emit ContractSetupCompleted(_contractOwner);
     }
 
     modifier isOwner() {
-        require(msg.sender == _contractOwner, "Caller is not owner");
+        require(msg.sender == address(_contractOwner), "Caller is not owner");
         _;
     } 
 
+
+ /*
     modifier inState(nNft storage nft, nNftState state_) {
         if (nft.state != state_)
             revert InvalidState();
         _;
-    }
+    }*/
     
 
     function mint(
@@ -76,7 +81,7 @@ contract PureNFT {
         uint price,
         string memory uriLicense,
         string memory copyright
-    ) public isOwner {
+    ) public isOwner returns (bool) {
         require(to != ADDRESS_NULL, "No null address is allowed");
         require(bytes(token).length != 0, "token is mandatory");
         require(bytes(uriFile).length != 0, "uriFile is mandatory");
@@ -85,7 +90,7 @@ contract PureNFT {
         require(bytes(hashMetaInfo).length != 0, "hashMetaInfo is mandatory");
         require(bytes(uriLicense).length != 0, "uriLicense is mandatory");
         require(bytes(copyright).length != 0, "copyright is mandatory");
-        require(price >=0 , "price must be positive"); //it allows having 0 price
+        //require(price >=0 , "price must be positive"); //it allows having 0 price, it's redundant because is uint
         require(
             bytes(_UsersWithNfts[token].hashFile).length == 0,
             "token in use"
@@ -114,7 +119,9 @@ contract PureNFT {
 
         _counter++;
 
-        emit Minted(to, token, _counter);
+        emit Minted(to, token);
+
+        return true;
     }
 
     // returns (nNft memory)
@@ -122,13 +129,13 @@ contract PureNFT {
         public
         view
         returns (
-            string memory,
-            string memory,
-            string memory,
-            string memory,
-            string memory,
-            string memory,
-            uint256
+            string memory uriFile,
+            string memory hashFile,
+            string memory uriMetaFile,
+            string memory hashMetaFile,
+            string memory uriLicense,
+            string memory copyright,
+            uint256 price
         )
     {
         require(bytes(token).length != 0, "token is mandatory");
@@ -136,17 +143,7 @@ contract PureNFT {
             bytes(_UsersWithNfts[token].hashFile).length != 0,
             "token doesn't exist"
         );
-
-        //address[] memory owners = new address[]( _UsersWithNfts[token].nftOwners.length );
-        /*_UsersWithNfts[token].nftOwners,
-            _UsersWithNfts[token].uriFile,
-            _UsersWithNfts[token].hashFile,
-            _UsersWithNfts[token].uriMetaFile,
-            _UsersWithNfts[token].hashMetaFile,
-            _UsersWithNfts[token].utcFile*/
-
-        // _UsersWithNfts[token]
-        // _UsersWithNfts[token].nftOwners;
+        
         return (
             _UsersWithNfts[token].uriFile,
             _UsersWithNfts[token].hashFile,
@@ -223,10 +220,20 @@ contract PureNFT {
     ) public isOwner returns (bool) {
         require(to != address(0), "No null to address is allowed");
         require(from != address(0), "No null from address is allowed");
+        require(from != to, "source address must be differnt to destination address");
         require(bytes(token).length != 0, "token is mandatory");
+        require(percentatge <=100 , "percentatge isn't correct");
         require(
             bytes(_UsersWithNfts[token].hashFile).length != 0,
             "token doesn't exist"
+        );
+        require(
+            !_UsersWithNfts[token].owners.contains(from),
+            "from address must be among the owners"
+        );
+        require(
+            !_UsersWithNfts[token].owners.contains(to),
+            "to address must be among the owners"
         );
         require(
             _UsersWithNfts[token].owners.data[from].value.percentatge >= percentatge,
@@ -236,19 +243,23 @@ contract PureNFT {
          require(
             _UsersWithNfts[token].owners.data[to].value.percentatge + percentatge <= 100,
             //_UsersWithNfts[token].owners[to].value.percentatge + percentatge <= 100,
-            "destination address would have more than 100% ownership"
+            "destination address would have more than 100% ownership, impossible!"
         );
-        require(
+        /*require(
             _UsersWithNfts[token].state  == nNftState.Trading ,
             "token state doesn't allow it"
-        );
+        );*/
 
         _UsersWithNfts[token].owners.data[from].value.percentatge -= percentatge;
-        //_UsersWithNfts[token].owners[from].value -= percentatge;
         _UsersWithNfts[token].owners.data[to].value.percentatge += percentatge;
-        //_UsersWithNfts[token].owners[to].value += percentatge;
 
-        emit Transfered(from, token, to, percentatge);
+        emit Transfered(token,
+            percentatge, 
+            from, 
+            _UsersWithNfts[token].owners.data[from].value.percentatge,
+            to, 
+            _UsersWithNfts[token].owners.data[to].value.percentatge
+            );
         return true;
     }
 
