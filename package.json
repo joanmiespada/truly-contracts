@@ -1,0 +1,20 @@
+{
+  "name": "purenft",
+  "version": "1.0.0",
+  "description": "Open tron local: http://127.0.0.1:9090",
+  "main": "tronbox-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "chai": "^4.3.7",
+    "ganache-cli": "^6.12.2",
+    "truffle": "^5.6.5"
+  }
+}
