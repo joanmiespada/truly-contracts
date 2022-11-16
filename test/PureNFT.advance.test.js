@@ -8,7 +8,7 @@ const MyNFT = artifacts.require('PureNFT');
 const mockdata = require('./mockdata');
 
 // Start test block
-contract('PureNFT', function (accounts) {
+contract('PureNFT advance', function (accounts) {
 
     const owner = accounts[0];
     const creator1 = accounts[9];
@@ -22,79 +22,7 @@ contract('PureNFT', function (accounts) {
         this.mynft = await MyNFT.new({ from: owner });
     });
 
-    it('1.0 owner contract', async function () {
-
-        await this.mynft.getTotalMinted({ from: owner });
-        await truffleAssert.reverts(
-            this.mynft.getTotalMinted({ from: creator1 }),
-        );
-    });
-    // Test case
-    it('2.0 create new NFTs', async function () {
-        // Store a value
-        //console.log('createNFT -> owner address: ' + owner)
-        let nft = mockdata[0];
-
-        let tx;
-
-        tx = await this.mynft.getTotalMinted();
-        expect(tx.toString()).to.equal('0');
-
-        tx = await this.mynft.mint(
-            creator1,
-            nft.token,
-            nft.uriFile,
-            nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
-            nft.price,
-            nft.uriLicense,
-            nft.copyright
-        );
-
-        //expect(tx).not.be.empty;
-        expectEvent(tx, 'Minted', { owner: creator1, token: nft.token });
-        tx = await this.mynft.getTotalMinted();
-        expect(tx.toString()).to.equal('1');
-
-        nft = mockdata[1];
-        tx = await this.mynft.mint(
-            creator2,
-            nft.token,
-            nft.uriFile,
-            nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
-            nft.price,
-            nft.uriLicense,
-            nft.copyright
-        );
-        truffleAssert.eventEmitted(tx, 'Minted', (ev) => {
-            return ev.owner == creator2 && ev.token == nft.token
-        });
-        tx = await this.mynft.getTotalMinted();
-        expect(tx.toString()).to.equal('2');
-
-        nft = mockdata[2];
-        tx = await this.mynft.mint(
-            creator3,
-            nft.token,
-            nft.uriFile,
-            nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
-            nft.price,
-            nft.uriLicense,
-            nft.copyright
-        );
-
-        expectEvent(tx, 'Minted', { owner: creator3, token: nft.token });
-        tx = await this.mynft.getTotalMinted();
-        expect(tx.toString()).to.equal('3');
-
-    });
-
-
+    
     it('3.0 retrive content from an NFT', async function () {
 
         let nft = mockdata[0];
@@ -172,13 +100,13 @@ contract('PureNFT', function (accounts) {
             nft.copyright
         );
         try {
-            await this.mynft.transferOwnership(creator1, 'xyz' , creator1, 10, { from: owner });
+            await this.mynft.transferOwnership(creator1, 'xyz', creator1, 10, { from: owner });
             expect.fail();
         } catch (ex) {
             expect(ex).not.be.empty;
         }
         try {
-            await this.mynft.transferOwnership(creator1, 'xyz' , owner, 10, { from: owner });
+            await this.mynft.transferOwnership(creator1, 'xyz', owner, 10, { from: owner });
             expect.fail();
         } catch (ex) {
             expect(ex).not.be.empty;
@@ -229,6 +157,8 @@ contract('PureNFT', function (accounts) {
         expect(tx[0][1]).eq(creator1);
         expect(tx[1][1].toString()).eq('70');
 
+        const len = tx[0].length;
+
         tx = await this.mynft.transferOwnership(creator1, nft.token, owner, 50, { from: owner });
 
         expectEvent(tx, 'Transfered', { token: nft.token, percentatge: BN(50), from: creator1, newFromPercentatge: BN(20), to: owner, newToPercentate: BN(80) });
@@ -241,8 +171,19 @@ contract('PureNFT', function (accounts) {
         expect(tx[0][1]).eq(creator1);
         expect(tx[1][1].toString()).eq('20');
 
+        expect(tx[0].length).be.eq(len);
 
     });
+
+
+    it('6.0 test buy nft ', async () => {
+
+
+
+    });
+
+
+
 
 
     /*

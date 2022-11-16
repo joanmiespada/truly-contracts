@@ -228,11 +228,11 @@ contract PureNFT {
             "token doesn't exist"
         );
         require(
-            !_UsersWithNfts[token].owners.contains(from),
+            _UsersWithNfts[token].owners.contains(from),
             "from address must be among the owners"
         );
         require(
-            !_UsersWithNfts[token].owners.contains(to),
+            _UsersWithNfts[token].owners.contains(to),
             "to address must be among the owners"
         );
         require(
