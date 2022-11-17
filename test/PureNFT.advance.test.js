@@ -176,30 +176,4 @@ contract('PureNFT advance', function (accounts) {
     });
 
 
-    it('6.0 test buy nft ', async () => {
-
-
-
-    });
-
-
-
-
-
-    /*
-      it('non owner cannot mint', async function () {
-    
-      const token = await this.mynft.safeMint(
-          account9, 'http://s3/test1.mp4',
-          'hash_mp4', 'http://s3/test.json', 
-          'hash_meta', '8:00pm' , { from: other });
-    
-        // Test a transaction reverts
-        await expectRevert(token, 'Ownable: caller is not the owner',
-        );
-      });
-    
-    });
-    */
-
 });

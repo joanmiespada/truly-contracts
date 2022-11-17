@@ -5,7 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "run test",
+            "name": "run buy tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/truffle/build/cli.bundled.js",
+            "args": ["test","./test/PureNFT.buy.test.js"],
+            "cwd": "${workspaceRoot}",
+            "outFiles": [
+                "${workspaceRoot}/test/**/*"
+            ],
+          },
+        {
+            "name": "run basic tests",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/truffle/build/cli.bundled.js",

@@ -33,13 +33,14 @@ contract PureNFT {
     event Minted(address owner, string token);
    // event Transfered(address from, string token, address to, uint256 percent);
     event Transfered(string token, uint percentatge, address from, uint newFromPercentatge, address to, uint newToPercentate );
-    event Sold(address, string, uint, string, string, address[]);
+    event Sold(address, string, uint, string, string);
     event Withdrawn (address, uint);
     event WithdrawnWithError(address, uint);
     event WithdrawnRemainFail(address, uint);
     event FoundsReceived(address, uint);
+    event borrame();
     /// the funds send don't cover the price
-    error NotEnoughMoney();
+    error NotEnoughMoney(string);
     /// The function cannot be called at the current state.
     error InvalidState();
     /// Not an owner of a token
@@ -280,8 +281,7 @@ contract PureNFT {
         return address(this).balance;
     }
 
-    function buy(string memory token, string memory newLicence, string memory newCopyright) public payable returns (bool) {
-
+    function buy(string memory token, string memory newLicence, string memory newCopyright) public payable {
         require(bytes(token).length != 0, "token is mandatory");
         require(
             bytes(_UsersWithNfts[token].hashFile).length != 0,
@@ -302,11 +302,12 @@ contract PureNFT {
         uint deposit = msg.value;
 
         if(deposit < _UsersWithNfts[token].price ) {
-            revert NotEnoughMoney();
+            revert NotEnoughMoney('buyer has no money');
         }
         uint totalPayed = 0;
-        address[] memory owners; // = new address[](total);
+        //address[] memory owners; // = new address[](total);
         itmap storage data = _UsersWithNfts[token].owners;
+
         for (
             Iterator i = data.iterateStart();
             data.iterateValid(i);
@@ -334,9 +335,8 @@ contract PureNFT {
         _UsersWithNfts[token].uriLicense = newLicence;
         _UsersWithNfts[token].copyright = newCopyright;
 
-        emit Sold (buyer, token, deposit, newLicence, newCopyright, owners );
+        emit Sold (buyer, token, deposit, newLicence, newCopyright );
 
-        return true;
 
     }
 
