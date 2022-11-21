@@ -33,12 +33,14 @@ contract PureNFT {
     event Minted(address owner, string token);
    // event Transfered(address from, string token, address to, uint256 percent);
     event Transfered(string token, uint percentatge, address from, uint newFromPercentatge, address to, uint newToPercentate );
-    event Sold(address, string, uint, string, string);
-    event Withdrawn (address, uint);
-    event WithdrawnWithError(address, uint);
+    event Sold(address buyer, string token, uint amount , string newLicense, string newCopyright);
+    event SoldOne(address buyer, string token, uint amount );
+    event Withdrawn (address seller, uint amount);
+    //event WithdrawnWithError(address, uint);
     event WithdrawnRemainFail(address, uint);
     event FoundsReceived(address, uint);
     event borrame();
+    event borrame2(uint transferGas);
     /// the funds send don't cover the price
     error NotEnoughMoney(string);
     /// The function cannot be called at the current state.
@@ -47,6 +49,8 @@ contract PureNFT {
     error NoOwner();
     /// No funds to be withdrawn
     error NoMoneyToWithdraw();
+    /// Error getting funds
+    error WithdrawCancelled(address, uint);
 
     constructor() {
         //require(_contractOwner != address(0), "Master address cannot be a zero address");
@@ -91,7 +95,8 @@ contract PureNFT {
         require(bytes(hashMetaInfo).length != 0, "hashMetaInfo is mandatory");
         require(bytes(uriLicense).length != 0, "uriLicense is mandatory");
         require(bytes(copyright).length != 0, "copyright is mandatory");
-        //require(price >=0 , "price must be positive"); //it allows having 0 price, it's redundant because is uint
+        require(price >=100 , "price must be >=100"); 
+        require(price % 2 ==0 , "price must be even"); 
         require(
             bytes(_UsersWithNfts[token].hashFile).length == 0,
             "token in use"
@@ -156,11 +161,15 @@ contract PureNFT {
         );
     }
 
+    struct Ownership{
+        address owner;
+        uint percentatge;
+    }
 
     function getOnwersByToken(string memory token)
         public
         view
-        returns (address[] memory , uint[] memory )
+        returns ( Ownership[] memory )
     {
         require(bytes(token).length != 0, "token is mandatory");
         require(
@@ -168,8 +177,10 @@ contract PureNFT {
             "token doesn't exist"
         );
         uint total = _UsersWithNfts[token].owners.size;  
-        address[] memory owners = new address[](total);
-        uint[] memory percentatges = new uint[](total);
+        //address[] memory owners = new address[](total);
+        //uint[] memory percentatges = new uint[](total);
+        //uint[] memory balances = new uint[](total);
+        Ownership[] memory ownees = new Ownership[](total);
 
         itmap storage data = _UsersWithNfts[token].owners;
         uint counter = 0;
@@ -179,12 +190,58 @@ contract PureNFT {
             i = data.iterateNext(i)
         ) {
             (address key,  uint percentatge, ) = data.iterateGet(i);
-            owners[counter] = key;
-            percentatges[counter] = percentatge;
+            ownees[counter].owner = key;
+            ownees[counter].percentatge = percentatge;
+            //owners[counter] = key;
+            //percentatges[counter] = percentatge;
+            //balances[counter] = balance;
             counter++;
         }
 
-        return (owners, percentatges);
+        //return (owners, percentatges, balances);
+        return (ownees);
+    }
+
+    struct Withdrawship{
+        address owner;
+        uint amount;
+        uint percentatge;
+    }
+
+        // returns (address[] memory , uint[] memory, uint[] memory )
+    function getPendingWithdrawsByToken(string memory token)
+        public
+        isOwner
+        view
+        returns (Withdrawship[] memory)
+    {
+        require(bytes(token).length != 0, "token is mandatory");
+        require(
+            bytes(_UsersWithNfts[token].hashFile).length != 0,
+            "token doesn't exist"
+        );
+        uint total = _UsersWithNfts[token].owners.size;  
+        //address[] memory owners = new address[](total);
+        //uint[] memory percentatges = new uint[](total);
+        //uint[] memory balances = new uint[](total);
+        Withdrawship[] memory balances = new Withdrawship[](total);
+
+        itmap storage data = _UsersWithNfts[token].owners;
+        uint counter = 0;
+        for (
+            Iterator i = data.iterateStart();
+            data.iterateValid(i);
+            i = data.iterateNext(i)
+        ) {
+            (address key,  uint percentatge, uint balance ) = data.iterateGet(i);
+            balances[counter].owner = key;
+            balances[counter].amount = balance;
+            balances[counter].percentatge = percentatge;
+            counter++;
+        }
+
+        //return (owners, percentatges, balances);
+        return (balances);
     }
 
     function getWithdrawsAvailableByToken(string memory token)
@@ -281,7 +338,7 @@ contract PureNFT {
         return address(this).balance;
     }
 
-    function buy(string memory token, string memory newLicence, string memory newCopyright) public payable {
+    function buy(string memory token, string memory newLicence, string memory newCopyright, uint newPrice ) public payable {
         require(bytes(token).length != 0, "token is mandatory");
         require(
             bytes(_UsersWithNfts[token].hashFile).length != 0,
@@ -301,8 +358,10 @@ contract PureNFT {
         //buyer transfer money to contract
         uint deposit = msg.value;
 
+        emit borrame2(deposit);
+
         if(deposit < _UsersWithNfts[token].price ) {
-            revert NotEnoughMoney('buyer has no money');
+            revert NotEnoughMoney('buyer has not enought money');
         }
         uint totalPayed = 0;
         //address[] memory owners; // = new address[](total);
@@ -313,11 +372,12 @@ contract PureNFT {
             data.iterateValid(i);
             i = data.iterateNext(i)
         ) {
-            (, uint percent, ) = data.iterateGet(i);
+            (address adr, uint percent,  ) = data.iterateGet(i);
             if(percent >0){
-                uint amountToWithdraw = (deposit /100) * percent;
+                uint amountToWithdraw = (deposit / 100) * percent;
                 data.update(i, 0, amountToWithdraw );
                 totalPayed += amountToWithdraw;
+                emit SoldOne(adr, token, amountToWithdraw ); //to be deleted
             }
         }
 
@@ -334,46 +394,47 @@ contract PureNFT {
         _UsersWithNfts[token].owners.insert( msg.sender , 100,0);
         _UsersWithNfts[token].uriLicense = newLicence;
         _UsersWithNfts[token].copyright = newCopyright;
+        _UsersWithNfts[token].price = newPrice;
 
         emit Sold (buyer, token, deposit, newLicence, newCopyright );
 
 
     }
 
-    function withdraw(string memory token) public payable returns (bool) {
+    function withdraw(string memory token) public payable {
 
         require(bytes(token).length != 0, "token is mandatory");
         require(
             bytes(_UsersWithNfts[token].hashFile).length != 0,
             "token doesn't exist"
         );
-        /*require(
-            _UsersWithNfts[token].owners.contains(msg.sender),
-            "you weren't the owner"
-        );*/
+
+        
         address owner = msg.sender;
 
         ( bool found , Iterator i) = _UsersWithNfts[token].owners.find(owner);
-
+        
         if(!found){
             revert NoOwner();
         }
-
+        
+        emit borrame();
         ( , uint percent, uint amount) = _UsersWithNfts[token].owners.iterateGet(i);
+        
         if(amount == 0){
             revert NoMoneyToWithdraw();
         }
-
+        emit borrame();
+        
         //payable(owner).transfer(amount);
         (bool sent, ) = payable(owner).call{value: amount}("");
         if(sent){
             _UsersWithNfts[token].owners.update(i, percent, 0);
             emit Withdrawn(owner, amount);
         }else{
-            emit WithdrawnWithError(owner, amount);
+            revert WithdrawCancelled(owner, amount);
         }
-
-        return true;
+        
          
     }
     

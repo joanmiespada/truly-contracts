@@ -27,6 +27,17 @@
             ],
           },
           {
+            "name": "run advance tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/truffle/build/cli.bundled.js",
+            "args": ["test","./test/PureNFT.advance.test.js"],
+            "cwd": "${workspaceRoot}",
+            "outFiles": [
+                "${workspaceRoot}/test/**/*"
+            ],
+          },
+          {
             "name": "run all tests",
             "type": "node",
             "request": "launch",

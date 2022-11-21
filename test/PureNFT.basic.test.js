@@ -13,7 +13,7 @@ contract('PureNFT basic', function (accounts) {
     const owner = accounts[0];
     const creator1 = accounts[9];
     const creator2 = accounts[8];
-    const creator3 = accounts[7];  
+    const creator3 = accounts[7];
     //console.log('test main -> owner address: ' + owner )
 
     beforeEach(async function () {
@@ -30,7 +30,7 @@ contract('PureNFT basic', function (accounts) {
         );
     });
 
-    
+
     // Test case
     it('2.0 create new NFTs', async function () {
         // Store a value
@@ -96,13 +96,13 @@ contract('PureNFT basic', function (accounts) {
 
     });
 
-   /* 
-    it('2.1 errors creating nfts without enough info', async () => {
-        
+
+    it('2.1 errors creating nfts without enough info', async function () {
+
         const nft = mockdata[1];
-        
+
         try {
-            let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
+            await this.mynft.mint( //only creator1 has 70% and owner has 30%
                 '',
                 nft.token,
                 nft.uriFile,
@@ -112,13 +112,12 @@ contract('PureNFT basic', function (accounts) {
                 nft.price,
                 nft.uriLicense,
                 nft.copyright
-            );
+            )
             assert.fail();
         } catch (ex) {
-            assert.include(ex.message, "revert")
-            //expect(ex).not.be.empty;
+            expect(ex).not.be.empty;
         }
-        
+
         try {
             let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
                 '0',
@@ -134,7 +133,7 @@ contract('PureNFT basic', function (accounts) {
             expect.fail();
         } catch (ex) {
             expect(ex).not.be.empty;
-        } 
+        }
         try {
             let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
                 creator1,
@@ -194,9 +193,8 @@ contract('PureNFT basic', function (accounts) {
         } catch (ex) {
             expect(ex).not.be.empty;
         }
-        
 
     });
-    */    
+
 
 });

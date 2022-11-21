@@ -77,11 +77,11 @@ contract('PureNFT advance', function (accounts) {
 
         tx = await this.mynft.getOnwersByToken(nft.token);
 
-        expect(tx[0][0]).eq(owner);
-        expect(tx[1][0].toString()).eq('30');
+        expect(tx[0].owner).eq(owner);
+        expect(tx[0].percentatge).eq('30');
 
-        expect(tx[0][1]).eq(creator1);
-        expect(tx[1][1].toString()).eq('70');
+        expect(tx[1].owner).eq(creator1);
+        expect(tx[1].percentatge).eq('70');
 
     });
 
@@ -151,13 +151,13 @@ contract('PureNFT advance', function (accounts) {
 
         tx = await this.mynft.getOnwersByToken(nft.token);
 
-        expect(tx[0][0]).eq(owner);
-        expect(tx[1][0].toString()).eq('30');
+        expect(tx[0].owner).eq(owner);
+        expect(tx[0].percentatge).eq('30');
 
-        expect(tx[0][1]).eq(creator1);
-        expect(tx[1][1].toString()).eq('70');
-
-        const len = tx[0].length;
+        expect(tx[1].owner).eq(creator1);
+        expect(tx[1].percentatge).eq('70');
+        
+        const len = tx.length;
 
         tx = await this.mynft.transferOwnership(creator1, nft.token, owner, 50, { from: owner });
 
@@ -165,13 +165,13 @@ contract('PureNFT advance', function (accounts) {
 
         tx = await this.mynft.getOnwersByToken(nft.token);
 
-        expect(tx[0][0]).eq(owner);
-        expect(tx[1][0].toString()).eq('80');
+        expect(tx[0].owner).eq(owner);
+        expect(tx[0].percentatge).eq('80');
 
-        expect(tx[0][1]).eq(creator1);
-        expect(tx[1][1].toString()).eq('20');
+        expect(tx[1].owner).eq(creator1);
+        expect(tx[1].percentatge).eq('20');
 
-        expect(tx[0].length).be.eq(len);
+        expect(tx.length).be.eq(len);
 
     });
 
