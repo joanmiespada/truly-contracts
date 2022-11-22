@@ -30,3 +30,8 @@ https://github.com/tronprotocol/tronbox
 - npx truffle test
 - npx truffle migrate --reset --network development
 - rm -r build/contracts && npx truffle migrate --reset  --network development
+
+## ganache docker image
+
+- $ docker run --detach --publish 8545:8545 trufflesuite/ganache:latest
+

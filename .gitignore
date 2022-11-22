@@ -3,3 +3,7 @@ src/js/metacoin-config.js
 node_modules
 build
 .env
+# Coverage directory used by tools like istanbul
+coverage
+coverage.json
+coverageEnv

@@ -138,7 +138,7 @@ contract('PureNFT buy', function (accounts) {
 
         expectEvent(tx, 'Sold', { buyer: buyer1 , token: nft.token, amount: BN(adquiredBy) , newLicense: newLicense, newCopyright: newCopyright  });
         
-        tx = await this.mynft.getPendingWithdrawsByToken(nft.token);
+        tx = await this.mynft.getPendingWithdrawsByToken(nft.token, { from: owner });
 
         expect(tx[0].owner).eq(owner);
         expect(tx[0].percentatge).eq('0');
@@ -156,7 +156,7 @@ contract('PureNFT buy', function (accounts) {
 
         expectEvent(tx, 'Withdrawn', { seller: creator1, amount: BN(expectedMoneyCreator) });
 
-        tx = await this.mynft.getPendingWithdrawsByToken(nft.token);
+        tx = await this.mynft.getPendingWithdrawsByToken(nft.token, { from: owner });
 
         expect(tx[0].owner).eq(owner);
         expect(tx[0].percentatge).eq('0');
@@ -174,7 +174,7 @@ contract('PureNFT buy', function (accounts) {
         tx = await this.mynft.withdraw(nft.token, { from: owner });
         expectEvent(tx, 'Withdrawn', { seller: owner, amount: BN(expectedMoneyOwner) });
 
-        tx = await this.mynft.getPendingWithdrawsByToken(nft.token);
+        tx = await this.mynft.getPendingWithdrawsByToken(nft.token, { from: owner });
 
         expect(tx[0].owner).eq(owner);
         expect(tx[0].percentatge).eq('0');
@@ -190,6 +190,25 @@ contract('PureNFT buy', function (accounts) {
 
 
                 
+    });
+    
+    it('6.2 withdraw peding not contract owner', async function () {
+    
+        try {
+            const nft = mockdata[0];
+            tx = await this.mynft.getPendingWithdrawsByToken(nft.token, { from: buyer1 });
+            expect.fail();
+        } catch (ex) {
+            expect(ex).not.be.empty;
+        }
+        try {
+            const nft = mockdata[0];
+            tx = await this.mynft.getPendingWithdrawsByToken(nft.token, { from: creator1 });
+            expect.fail();
+        } catch (ex) {
+            expect(ex).not.be.empty;
+        }
+    
     });
 
 

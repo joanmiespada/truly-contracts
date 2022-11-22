@@ -9,7 +9,7 @@ contract PureNFT {
     address private constant ADDRESS_NULL = address(0x0);
     address private _contractOwner;
 
-    enum nNftState { Trading, Inactive }
+    //enum nNftState { Trading, Inactive }
 
     struct nNft {
         //nNftOwners[] nftOwners;
@@ -22,7 +22,7 @@ contract PureNFT {
         uint   price;
         string uriLicense;
         string copyright;
-        nNftState state; 
+        //nNftState state; 
     }
 
     mapping(string => nNft) private _UsersWithNfts;
@@ -39,12 +39,12 @@ contract PureNFT {
     //event WithdrawnWithError(address, uint);
     event WithdrawnRemainFail(address, uint);
     event FoundsReceived(address, uint);
-    event borrame();
-    event borrame2(uint transferGas);
+    //event borrame();
+    //event borrame2(uint transferGas);
     /// the funds send don't cover the price
     error NotEnoughMoney(string);
-    /// The function cannot be called at the current state.
-    error InvalidState();
+    // // The function cannot be called at the current state.
+    //error InvalidState();
     /// Not an owner of a token
     error NoOwner();
     /// No funds to be withdrawn
@@ -119,7 +119,7 @@ contract PureNFT {
         _UsersWithNfts[token].uriLicense = uriLicense;
         _UsersWithNfts[token].copyright = copyright;
         _UsersWithNfts[token].price = price;
-        _UsersWithNfts[token].state = nNftState.Trading;
+        //_UsersWithNfts[token].state = nNftState.Trading;
 
         // _UsersWithNfts[token].utcFile = utcFileCreation;
 
@@ -345,10 +345,10 @@ contract PureNFT {
             "token doesn't exist"
         );
         require(bytes(newCopyright).length != 0, "new copyright is mandatory");
-        require(
-            _UsersWithNfts[token].state  == nNftState.Trading ,
-            "token state doesn't allow it"
-        );
+        //require(
+        //    _UsersWithNfts[token].state  == nNftState.Trading ,
+        //    "token state doesn't allow it"
+        //);
         require(
             !_UsersWithNfts[token].owners.contains(msg.sender),
             "you're already an owner"
@@ -358,7 +358,7 @@ contract PureNFT {
         //buyer transfer money to contract
         uint deposit = msg.value;
 
-        emit borrame2(deposit);
+        //emit borrame2(deposit);
 
         if(deposit < _UsersWithNfts[token].price ) {
             revert NotEnoughMoney('buyer has not enought money');
@@ -372,12 +372,12 @@ contract PureNFT {
             data.iterateValid(i);
             i = data.iterateNext(i)
         ) {
-            (address adr, uint percent,  ) = data.iterateGet(i);
+            (, uint percent,  ) = data.iterateGet(i);
             if(percent >0){
                 uint amountToWithdraw = (deposit / 100) * percent;
                 data.update(i, 0, amountToWithdraw );
                 totalPayed += amountToWithdraw;
-                emit SoldOne(adr, token, amountToWithdraw ); //to be deleted
+                //emit SoldOne(adr, token, amountToWithdraw ); //to be deleted
             }
         }
 
@@ -418,13 +418,11 @@ contract PureNFT {
             revert NoOwner();
         }
         
-        emit borrame();
         ( , uint percent, uint amount) = _UsersWithNfts[token].owners.iterateGet(i);
         
         if(amount == 0){
             revert NoMoneyToWithdraw();
         }
-        emit borrame();
         
         //payable(owner).transfer(amount);
         (bool sent, ) = payable(owner).call{value: amount}("");

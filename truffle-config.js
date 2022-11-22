@@ -111,6 +111,8 @@ module.exports = {
   // Set default mocha options here, use special reporters, etc.
   mocha: {
     // timeout: 100000
+    reporter: 'eth-gas-reporter',
+    reporterOptions : { excludeContracts: ['Migrations'] }
   },
 
   // Configure your compilers
@@ -126,7 +128,8 @@ module.exports = {
       //  evmVersion: "byzantium"
       // }
     }
-  }
+  },
+  plugins: ["solidity-coverage"],
 
   // Truffle DB is currently disabled by default; to enable it, change enabled:
   // false to enabled: true. The default storage location can also be
