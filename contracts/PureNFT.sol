@@ -106,7 +106,7 @@ contract PureNFT {
         require(bytes(hashMetaInfo).length != 0, "hashMetaInfo is mandatory");
         require(bytes(uriLicense).length != 0, "uriLicense is mandatory");
         require(bytes(copyright).length != 0, "copyright is mandatory");
-        require(price >= 100, "price must be >=100");
+        require(price >= 100, "price must be >=100 wei");
         require(price % 2 == 0, "price must be even");
         require(
             bytes(_UsersWithNfts[token].hashFile).length == 0,
@@ -282,7 +282,8 @@ contract PureNFT {
             "source address must be differnt to destination address"
         );
         require(bytes(token).length != 0, "token is mandatory");
-        require(percentatge <= 100, "percentatge isn't correct");
+        require(percentatge <= 100, "percentatge isn't correct, must be between 1 and 100");
+        require(percentatge > 0, "percentatge isn't correct, must be between 1 and 100");
         require(
             bytes(_UsersWithNfts[token].hashFile).length != 0,
             "token doesn't exist"

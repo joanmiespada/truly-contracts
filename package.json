@@ -17,6 +17,7 @@
   "devDependencies": {
     "@openzeppelin/test-environment": "^0.1.9",
     "@openzeppelin/test-helpers": "^0.5.16",
+    "@truffle/hdwallet-provider": "^2.1.1",
     "chai": "^4.3.7",
     "coveralls": "^3.1.1",
     "dotenv": "^16.0.3",

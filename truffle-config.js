@@ -45,7 +45,7 @@ require('dotenv').config();
 // require('dotenv').config();
 // const { MNEMONIC, PROJECT_ID } = process.env;
 //const { alchemyApiKey, mnemonic } = require('./secrets.json');
-//const HDWalletProvider = require('@truffle/hdwallet-provider');
+const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 module.exports = {
   /**
@@ -58,6 +58,10 @@ module.exports = {
    * $ truffle test --network <network-name>
    */
 
+  dashboard: {
+    port: 24012,
+  },
+
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
     // if it's defined here and no other network is specified at the command line.
@@ -69,6 +73,7 @@ module.exports = {
       host: "127.0.0.1",     // Localhost (default: none)
       port: 8545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
+      gas: 6700000
     },
     //
     // An additional network, but with some advanced options…
@@ -106,6 +111,9 @@ module.exports = {
     //   timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
     //   skipDryRun: true,
     // },
+    dashboard: {
+      networkCheckTimeout: 120000,
+    }
   },
 
   // Set default mocha options here, use special reporters, etc.

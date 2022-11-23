@@ -35,3 +35,6 @@ https://github.com/tronprotocol/tronbox
 
 - $ docker run --detach --publish 8545:8545 trufflesuite/ganache:latest
 
+# solc abi compiler
+
+- solc -o build --bin --abi contracts/*.sol
