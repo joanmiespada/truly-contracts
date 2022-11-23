@@ -47,7 +47,11 @@ contract PureNFT {
         string newLicense,
         string newCopyright
     );
+
+
     event SoldOne(address buyer, string token, uint256 amount);
+    event DisabledToken(string token);
+    event EnabledToken(string token);
     event Withdrawn(address seller, uint256 amount);
     event WithdrawnRemainFail(address, uint256);
     event FoundsReceived(address, uint256);
@@ -128,6 +132,12 @@ contract PureNFT {
         return true;
     }
 
+    function getStateName(nNftState state) internal pure returns (string memory) {
+        if (state == nNftState.Active) return "Active";
+        if (state == nNftState.Inactive) return "Inactive";
+        return "";
+    }
+
     // returns (nNft memory)
     function getContentByToken(string memory token)
         public
@@ -139,7 +149,8 @@ contract PureNFT {
             string memory hashMetaFile,
             string memory uriLicense,
             string memory copyright,
-            uint256 price
+            uint256 price,
+            string memory state
         )
     {
         require(bytes(token).length != 0, "token is mandatory");
@@ -147,15 +158,17 @@ contract PureNFT {
             bytes(_UsersWithNfts[token].hashFile).length != 0,
             "token doesn't exist"
         );
-
+        nNft storage nft = _UsersWithNfts[token];
+        string memory sts= getStateName(_UsersWithNfts[token].state);
         return (
-            _UsersWithNfts[token].uriFile,
-            _UsersWithNfts[token].hashFile,
-            _UsersWithNfts[token].uriMetaFile,
-            _UsersWithNfts[token].hashMetaFile,
-            _UsersWithNfts[token].uriLicense,
-            _UsersWithNfts[token].copyright,
-            _UsersWithNfts[token].price
+            nft.uriFile,
+            nft.hashFile,
+            nft.uriMetaFile,
+            nft.hashMetaFile,
+            nft.uriLicense,
+            nft.copyright,
+            nft.price,
+            sts 
         );
     }
 
@@ -346,6 +359,7 @@ contract PureNFT {
             !_UsersWithNfts[token].owners.contains(msg.sender),
             "you're already an owner"
         );
+
         address buyer = payable(msg.sender);
 
         //buyer transfer money to contract
@@ -420,4 +434,14 @@ contract PureNFT {
             revert WithdrawCancelled(owner, amount);
         }
     }
+
+    function disableByToken(string memory token) public isOwner {
+        _UsersWithNfts[token].state = nNftState.Inactive;
+        emit DisabledToken(token);
+    }
+    function enableByToken(string memory token) public isOwner {
+        _UsersWithNfts[token].state = nNftState.Active;
+        emit EnabledToken(token);
+    }
+
 }

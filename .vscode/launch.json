@@ -58,6 +58,17 @@
             "outFiles": [
                 "${workspaceRoot}/test/**/*"
             ],
+          },
+          {
+            "name": "run buy test",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/truffle/build/cli.bundled.js",
+            "args": ["test","./test/PureNFT.buy.test.js"],
+            "cwd": "${workspaceRoot}",
+            "outFiles": [
+                "${workspaceRoot}/test/**/*"
+            ],
           }
     ]
 }

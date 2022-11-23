@@ -56,9 +56,11 @@ contract('PureNFT buy', function (accounts) {
         const newCopyright = "new licence buyer1";
         const newLicense = "new copyright buyer1";
         const newPrice = 1000;
-        tx = await this.mynft.buy(nft.token, newLicense, newCopyright, newPrice, { from: buyer1, value: 100 });
+        const adquiredBy = 100;
+        tx = await this.mynft.buy(nft.token, newLicense, newCopyright, newPrice, { from: buyer1, value: adquiredBy });
 
-        expect(tx).not.empty;
+        expectEvent(tx, 'Sold', { buyer: buyer1, token: nft.token, amount: BN(adquiredBy), newLicense: newLicense, newCopyright: newCopyright });
+
         tx = await this.mynft.getContentByToken(nft.token);
         expect(tx.uriLicense).eq(newLicense);
         expect(tx.copyright).eq(newCopyright);
@@ -80,44 +82,34 @@ contract('PureNFT buy', function (accounts) {
 
     });
 
-    
+
     it('6.1 try to buy an NFT below the 100 threshold', async function () {
 
         let tx;
-        try {
-            const nft = mockdata[0];
-            tx = await this.mynft.getContentByToken(nft.token);
+        const nft = mockdata[0];
+        tx = await this.mynft.getContentByToken(nft.token);
 
-            expect(tx.uriLicense).eq(nft.uriLicense)
-            expect(tx.copyright).eq(nft.copyright)
+        expect(tx.uriLicense).eq(nft.uriLicense)
+        expect(tx.copyright).eq(nft.copyright)
 
-            const newCopyright = "new licence buyer1";
-            const newLicense = "new copyright buyer1";
-            tx = await this.mynft.buy(nft.token, newLicense, newCopyright, 1000, { from: buyer1, value: 90 });
-            expect.fail()
-        } catch (ex) {
-            expect(ex).not.be.empty;
-        }
+        const newCopyright = "new licence buyer1";
+        const newLicense = "new copyright buyer1";
+        await expectRevert.unspecified(this.mynft.buy(nft.token, newLicense, newCopyright, 1000, { from: buyer1, value: 90 }));
 
     });
-    
+
     it('6.1.1 try to buy an NFT without enough money', async function () {
 
         let tx;
-        try {
-            const nft = mockdata[1];
-            tx = await this.mynft.getContentByToken(nft.token);
+        const nft = mockdata[1];
+        tx = await this.mynft.getContentByToken(nft.token);
 
-            expect(tx.uriLicense).eq(nft.uriLicense)
-            expect(tx.copyright).eq(nft.copyright)
+        expect(tx.uriLicense).eq(nft.uriLicense)
+        expect(tx.copyright).eq(nft.copyright)
 
-            const newCopyright = "new licence buyer1";
-            const newLicense = "new copyright buyer1";
-            tx = await this.mynft.buy(nft.token, newLicense, newCopyright, 1000, { from: buyer1, value: 499 });
-            expect.fail()
-        } catch (ex) {
-            expect(ex).not.be.empty;
-        }
+        const newCopyright = "new licence buyer1";
+        const newLicense = "new copyright buyer1";
+        await expectRevert.unspecified(this.mynft.buy(nft.token, newLicense, newCopyright, 1000, { from: buyer1, value: 499 }));
 
     });
 
@@ -129,24 +121,24 @@ contract('PureNFT buy', function (accounts) {
         const newCopyright = "new licence buyer1";
         const newLicense = "new copyright buyer1";
         const newPrice = 10000;
-        const adquiredBy= 1000;
+        const adquiredBy = 1000;
 
-        let expectedMoneyOwner = (adquiredBy / 100 ) * 30;
-        let expectedMoneyCreator = (adquiredBy / 100 ) * 70;
+        let expectedMoneyOwner = (adquiredBy / 100) * 30;
+        let expectedMoneyCreator = (adquiredBy / 100) * 70;
 
         tx = await this.mynft.buy(nft.token, newLicense, newCopyright, newPrice, { from: buyer1, value: BN(adquiredBy) });
 
-        expectEvent(tx, 'Sold', { buyer: buyer1 , token: nft.token, amount: BN(adquiredBy) , newLicense: newLicense, newCopyright: newCopyright  });
-        
+        expectEvent(tx, 'Sold', { buyer: buyer1, token: nft.token, amount: BN(adquiredBy), newLicense: newLicense, newCopyright: newCopyright });
+
         tx = await this.mynft.getPendingWithdrawsByToken(nft.token, { from: owner });
 
         expect(tx[0].owner).eq(owner);
         expect(tx[0].percentatge).eq('0');
-        expect(tx[0].amount).eq( expectedMoneyOwner.toString() );
+        expect(tx[0].amount).eq(expectedMoneyOwner.toString());
 
         expect(tx[1].owner).eq(creator1);
         expect(tx[1].percentatge).eq('0');
-        expect(tx[1].amount).eq( expectedMoneyCreator.toString() );
+        expect(tx[1].amount).eq(expectedMoneyCreator.toString());
 
         expect(tx[2].owner).eq(buyer1);
         expect(tx[2].percentatge).eq('100');
@@ -160,17 +152,17 @@ contract('PureNFT buy', function (accounts) {
 
         expect(tx[0].owner).eq(owner);
         expect(tx[0].percentatge).eq('0');
-        expect(tx[0].amount).eq( expectedMoneyOwner.toString());
+        expect(tx[0].amount).eq(expectedMoneyOwner.toString());
 
         expect(tx[1].owner).eq(creator1);
         expect(tx[1].percentatge).eq('0');
-        expect(tx[1].amount).eq( '0' );
+        expect(tx[1].amount).eq('0');
 
         expect(tx[2].owner).eq(buyer1);
         expect(tx[2].percentatge).eq('100');
         expect(tx[2].amount).eq('0');
 
-                
+
         tx = await this.mynft.withdraw(nft.token, { from: owner });
         expectEvent(tx, 'Withdrawn', { seller: owner, amount: BN(expectedMoneyOwner) });
 
@@ -178,22 +170,22 @@ contract('PureNFT buy', function (accounts) {
 
         expect(tx[0].owner).eq(owner);
         expect(tx[0].percentatge).eq('0');
-        expect(tx[0].amount).eq( '0' );
+        expect(tx[0].amount).eq('0');
 
         expect(tx[1].owner).eq(creator1);
         expect(tx[1].percentatge).eq('0');
-        expect(tx[1].amount).eq( '0' );
+        expect(tx[1].amount).eq('0');
 
         expect(tx[2].owner).eq(buyer1);
         expect(tx[2].percentatge).eq('100');
         expect(tx[2].amount).eq('0');
 
 
-                
+
     });
-    
+
     it('6.2 withdraw peding not contract owner', async function () {
-    
+
         try {
             const nft = mockdata[0];
             tx = await this.mynft.getPendingWithdrawsByToken(nft.token, { from: buyer1 });
@@ -208,7 +200,7 @@ contract('PureNFT buy', function (accounts) {
         } catch (ex) {
             expect(ex).not.be.empty;
         }
-    
+
     });
 
 
