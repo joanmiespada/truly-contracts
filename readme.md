@@ -31,6 +31,10 @@ https://github.com/tronprotocol/tronbox
 - npx truffle migrate --reset --network development
 - rm -r build/contracts && npx truffle migrate --reset  --network development
 
+- truffle migrate --network <networkname>
+- truffle run verify <smartContractXYZ> --network <networkname>
+
+
 ## ganache docker image
 
 - $ docker run --detach --publish 8545:8545 trufflesuite/ganache:latest
@@ -38,3 +42,10 @@ https://github.com/tronprotocol/tronbox
 # solc abi compiler
 
 - solc -o build --bin --abi contracts/*.sol
+
+
+# contract address:
+
+PureNFT is deployed at: 
+
+- goerli: 0xeE923c595254dCA7f38C804A2D765bbd53ABbe29 

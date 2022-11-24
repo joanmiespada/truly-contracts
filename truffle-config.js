@@ -1,4 +1,6 @@
-require('dotenv').config(); 
+require('dotenv').config();
+const Web3 = require('web3');
+const web3 = new Web3();
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -43,7 +45,7 @@ require('dotenv').config();
  */
 
 // require('dotenv').config();
-// const { MNEMONIC, PROJECT_ID } = process.env;
+const { METAMASK_MNEMONIC, INFURA_API_KEY, ETHERSCAN_API_KEY } = process.env;
 //const { alchemyApiKey, mnemonic } = require('./secrets.json');
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
@@ -73,7 +75,25 @@ module.exports = {
       host: "127.0.0.1",     // Localhost (default: none)
       port: 8545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
-      gas: 6700000
+      gas: web3.utils.toWei('0.0067', 'gwei'),   //6700000,
+      gasPrice: web3.utils.toWei('14.2', 'gwei'),
+    },
+    mainnet: {
+      provider: () => new HDWalletProvider(METAMASK_MNEMONIC, `https://mainnet.infura.io/v3/${INFURA_API_KEY}`),
+      network_id: 1,       // Mainnet's id
+      confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets )
+      gas: web3.utils.toWei('0.005', 'gwei'),   //5000000,
+      gasPrice: web3.utils.toWei('14.2', 'gwei'), // from  https://ethgasstation.info/
+
+    },
+    sepolia: {
+      provider: () => new HDWalletProvider(METAMASK_MNEMONIC, `https://sepolia.infura.io/v3/${INFURA_API_KEY}`),
+      network_id: 11155111, // Sepolia's id
+      confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
     //
     // An additional network, but with some advanced options…
@@ -88,13 +108,13 @@ module.exports = {
     //
     // Useful for deploying to a public network.
     // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
-    // goerli: {
-    //   provider: () => new HDWalletProvider(MNEMONIC, `https://goerli.infura.io/v3/${PROJECT_ID}`),
-    //   network_id: 5,       // Goerli's id
-    //   confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
-    //   timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    // },
+    goerli: {
+      provider: () => new HDWalletProvider(METAMASK_MNEMONIC, `https://goerli.infura.io/v3/${INFURA_API_KEY}`),
+      network_id: 5,       // Goerli's id
+      confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    },
     //
     // Useful for private networks
     // private: {
@@ -120,7 +140,7 @@ module.exports = {
   mocha: {
     // timeout: 100000
     reporter: 'eth-gas-reporter',
-    reporterOptions : { excludeContracts: ['Migrations'] }
+    reporterOptions: { excludeContracts: ['Migrations'] }
   },
 
   // Configure your compilers
@@ -137,7 +157,14 @@ module.exports = {
       // }
     }
   },
-  plugins: ["solidity-coverage"],
+  plugins: [
+    //"solidity-coverage", 
+    'truffle-plugin-verify'
+  ],
+
+  api_keys: {
+    etherscan: ETHERSCAN_API_KEY
+  }
 
   // Truffle DB is currently disabled by default; to enable it, change enabled:
   // false to enabled: true. The default storage location can also be
