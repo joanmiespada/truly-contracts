@@ -1,21 +1,24 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity >=0.8.8 <0.9.0;
 
 import "./IterableMapping.sol";
 
 contract PureNFT {
     using IterableMapping for itmap;
 
+    bool public contractPaused;
+
     address private constant ADDRESS_NULL = address(0x0);
     address private _contractOwner;
 
     enum nNftState {
         Active,
-        Inactive
+        Inactive,
+        BlockByDMCA
     }
 
     struct nNft {
-        itmap owners; //mapping between address and %percentatge
+        itmap owners; //mapping between address and nfts
         string hashFile;
         string uriFile;
         string hashMetaFile;
@@ -48,13 +51,14 @@ contract PureNFT {
         string newCopyright
     );
 
-
     event SoldOne(address buyer, string token, uint256 amount);
     event DisabledToken(string token);
     event EnabledToken(string token);
     event Withdrawn(address seller, uint256 amount);
     event WithdrawnRemainFail(address, uint256);
     event FoundsReceived(address, uint256);
+    event ContractPaused();
+    event ContractEnabled();
     /// the funds send don't cover the price
     error NotEnoughMoney(string);
     // // The function cannot be called at the current state.
@@ -66,11 +70,31 @@ contract PureNFT {
     /// Error getting funds
     error WithdrawCancelled(address, uint256);
 
+    mapping(address => uint256) private userLastAction;
+    uint256 throttleTime = 1; // block - 30 seconds;
+
+    event borrame1();
+    event borrame2();
+    event borrame3();
+
+    modifier throttling() {
+        emit borrame1();
+        if (userLastAction[msg.sender] == 0x0) {
+            emit borrame2();
+            userLastAction[msg.sender] = 0;
+        }
+        require(block.number - throttleTime >= userLastAction[msg.sender], "you're calling super fast");
+        userLastAction[msg.sender] = block.number;
+        emit borrame3();
+        _;
+    }
+
     constructor() {
         //require(_contractOwner != address(0), "Master address cannot be a zero address");
 
         _contractOwner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
         _counter = 0;
+        contractPaused = false;
 
         emit ContractSetupCompleted(_contractOwner);
     }
@@ -80,12 +104,21 @@ contract PureNFT {
         _;
     }
 
-    /*
-    modifier inState(nNft storage nft, nNftState state_) {
-        if (nft.state != state_)
-            revert InvalidState();
+    function circuitBreaker() public isOwner {
+        // onlyOwner can call
+        if (contractPaused == false) {
+            contractPaused = true;
+            emit ContractPaused();
+        } else {
+            contractPaused = false;
+            emit ContractEnabled();
+        }
+    }
+
+    modifier checkIfPaused() {
+        require(contractPaused == false);
         _;
-    }*/
+    }
 
     function mint(
         address to,
@@ -132,7 +165,11 @@ contract PureNFT {
         return true;
     }
 
-    function getStateName(nNftState state) internal pure returns (string memory) {
+    function getStateName(nNftState state)
+        internal
+        pure
+        returns (string memory)
+    {
         if (state == nNftState.Active) return "Active";
         if (state == nNftState.Inactive) return "Inactive";
         return "";
@@ -142,6 +179,7 @@ contract PureNFT {
     function getContentByToken(string memory token)
         public
         view
+        checkIfPaused
         returns (
             string memory uriFile,
             string memory hashFile,
@@ -159,7 +197,7 @@ contract PureNFT {
             "token doesn't exist"
         );
         nNft storage nft = _UsersWithNfts[token];
-        string memory sts= getStateName(_UsersWithNfts[token].state);
+        string memory sts = getStateName(_UsersWithNfts[token].state);
         return (
             nft.uriFile,
             nft.hashFile,
@@ -168,7 +206,7 @@ contract PureNFT {
             nft.uriLicense,
             nft.copyright,
             nft.price,
-            sts 
+            sts
         );
     }
 
@@ -180,6 +218,7 @@ contract PureNFT {
     function getOnwersByToken(string memory token)
         public
         view
+        checkIfPaused
         returns (Ownership[] memory)
     {
         require(bytes(token).length != 0, "token is mandatory");
@@ -247,6 +286,7 @@ contract PureNFT {
     function getWithdrawsAvailableByToken(string memory token)
         public
         view
+        checkIfPaused
         returns (uint256 funds)
     {
         require(bytes(token).length != 0, "token is mandatory");
@@ -254,15 +294,22 @@ contract PureNFT {
             bytes(_UsersWithNfts[token].hashFile).length != 0,
             "token doesn't exist"
         );
+        require(
+            _UsersWithNfts[token].owners.contains(msg.sender),
+            "address must be among the owners"
+        );
+
         funds = 0;
         address owner = msg.sender;
 
-        nNftOwner memory aux = _UsersWithNfts[token].owners.data[owner].value;
-        if (aux.amountToWithdraw != 0) {
-            funds = aux.amountToWithdraw;
+        (bool found, Iterator i) = _UsersWithNfts[token].owners.find(owner);
+
+        if (!found) {
+            revert NoOwner();
         }
 
-        return funds;
+        (, , uint256 amount) = _UsersWithNfts[token].owners.iterateGet(i);
+        return amount;
     }
 
     function getTotalMinted() public view isOwner returns (uint256) {
@@ -282,8 +329,14 @@ contract PureNFT {
             "source address must be differnt to destination address"
         );
         require(bytes(token).length != 0, "token is mandatory");
-        require(percentatge <= 100, "percentatge isn't correct, must be between 1 and 100");
-        require(percentatge > 0, "percentatge isn't correct, must be between 1 and 100");
+        require(
+            percentatge <= 100,
+            "percentatge isn't correct, must be between 1 and 100"
+        );
+        require(
+            percentatge > 0,
+            "percentatge isn't correct, must be between 1 and 100"
+        );
         require(
             bytes(_UsersWithNfts[token].hashFile).length != 0,
             "token doesn't exist"
@@ -310,7 +363,7 @@ contract PureNFT {
             "destination address would have more than 100% ownership, impossible!"
         );
         /*require(
-            _UsersWithNfts[token].state  == nNftState.Trading ,
+            _UsersWithNfts[token].state  == nNftState.Inactive ,
             "token state doesn't allow it"
         );*/
 
@@ -336,7 +389,7 @@ contract PureNFT {
         emit FoundsReceived(msg.sender, msg.value);
     }
 
-    function getBallance() public view isOwner returns (uint256) {
+    function getBalance() public view isOwner returns (uint256) {
         return address(this).balance;
     }
 
@@ -345,15 +398,16 @@ contract PureNFT {
         string memory newLicence,
         string memory newCopyright,
         uint256 newPrice
-    ) public payable {
+    ) public payable checkIfPaused {
         require(bytes(token).length != 0, "token is mandatory");
         require(
             bytes(_UsersWithNfts[token].hashFile).length != 0,
             "token doesn't exist"
         );
         require(bytes(newCopyright).length != 0, "new copyright is mandatory");
+        require(bytes(newLicence).length != 0, "new license is mandatory");
         require(
-            _UsersWithNfts[token].state  == nNftState.Active,
+            _UsersWithNfts[token].state == nNftState.Active,
             "token state doesn't allow it"
         );
         require(
@@ -403,11 +457,15 @@ contract PureNFT {
         emit Sold(buyer, token, deposit, newLicence, newCopyright);
     }
 
-    function withdraw(string memory token) public payable {
+    function withdraw(string memory token) public payable checkIfPaused throttling {
         require(bytes(token).length != 0, "token is mandatory");
         require(
             bytes(_UsersWithNfts[token].hashFile).length != 0,
             "token doesn't exist"
+        );
+        require(
+            _UsersWithNfts[token].state == nNftState.Active,
+            "token state doesn't allow it"
         );
 
         address owner = msg.sender;
@@ -426,12 +484,16 @@ contract PureNFT {
             revert NoMoneyToWithdraw();
         }
 
+        //to avoid re-entrancy calls, let's setup to zero current amount before trasnferring the ether
+        _UsersWithNfts[token].owners.update(i, percent, 0);
+
         //payable(owner).transfer(amount);
         (bool sent, ) = payable(owner).call{value: amount}("");
         if (sent) {
-            _UsersWithNfts[token].owners.update(i, percent, 0);
             emit Withdrawn(owner, amount);
         } else {
+            //if transaction fails, then restore the original amount
+            _UsersWithNfts[token].owners.update(i, percent, amount); //maybe isn't need it because revert will cancel any state changes...
             revert WithdrawCancelled(owner, amount);
         }
     }
@@ -440,9 +502,14 @@ contract PureNFT {
         _UsersWithNfts[token].state = nNftState.Inactive;
         emit DisabledToken(token);
     }
+
     function enableByToken(string memory token) public isOwner {
         _UsersWithNfts[token].state = nNftState.Active;
         emit EnabledToken(token);
     }
 
+    function disableDMCAInfractionByToken(string memory token) public isOwner {
+        _UsersWithNfts[token].state = nNftState.BlockByDMCA;
+        emit EnabledToken(token);
+    }
 }

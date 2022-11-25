@@ -226,7 +226,6 @@ contract('PureNFT advance', function (accounts) {
 
     });
 
-
-
+    
 
 });

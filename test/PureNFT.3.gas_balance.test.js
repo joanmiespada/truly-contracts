@@ -1,7 +1,7 @@
 
 const { expect } = require('chai');
 const truffleAssert = require('truffle-assertions');
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const Web3 = require('web3');
 
 // Load compiled artifacts
@@ -30,7 +30,7 @@ contract('PureNFT gas', function (accounts) {
     });
 
 
-    it('7.0 buy an NFT - gas movement', async function () {
+    it('8.0 buy an NFT - gas movement', async function () {
 
 
         var balanceOwnerWei = await this.web3.eth.getBalance(owner);
@@ -167,7 +167,7 @@ contract('PureNFT gas', function (accounts) {
 
     });
 
-    it('7.1 buy an NFT and withdraw funds no owner - no gas movement', async function () {
+    it('8.1 buy an NFT and withdraw funds no owner - no gas movement', async function () {
 
         //when someone that isn't the owner try to get money, nothing happens. No funds movement.
 
@@ -217,6 +217,53 @@ contract('PureNFT gas', function (accounts) {
         }
 
     });
+/*
+    it('8.2 withdraw super fast', async function () {
+        await Promise.all(mockdata.map((nft, index) => {
+            return this.mynft.mint(
+                creator1,
+                nft.token,
+                nft.uriFile,
+                nft.hashFile,
+                nft.uriMetaFile,
+                nft.hashMetaFile,
+                nft.price,
+                nft.uriLicense,
+                nft.copyright
+            );
+        }));
 
+        //let's purchase the NFT
+        const newCopyright = "new licence buyer1";
+        const newLicense = "new copyright buyer1";
+        const newPvp = 25; //in eth
+        const newPriceWeis = this.web3.utils.toWei(newPvp.toString(), 'ether'); // in weis
+
+        tx = await this.mynft.buy(mockdata[0].token, newLicense, newCopyright, newPriceWeis, { from: buyer1, value: mockdata[0].price });
+        tx = await this.mynft.buy(mockdata[1].token, newLicense, newCopyright, newPriceWeis, { from: buyer1, value: mockdata[1].price});
+        tx = await this.mynft.buy(mockdata[2].token, newLicense, newCopyright, newPriceWeis, { from: buyer1, value: mockdata[2].price});
+
+
+        let blk1 = await time.latestBlock();
+        tx = await this.mynft.withdraw(mockdata[0].token, { from: creator1 });
+        try {
+            let blk2 = await time.latestBlock();
+            tx = await this.mynft.withdraw(mockdata[1].token, { from: creator1 });
+            expect.fail();
+        } catch (ex) {
+            if(ex.message === 'expect.fail()')
+                expect.fail();
+            expect(ex).not.be.empty;
+        }
+        await time.advanceBlock();
+        try{
+            tx = await this.mynft.withdraw(mockdata[1].token, { from: creator1 });
+            expect(tx).not.be.empty;
+        } catch (ex) {
+            expect.fail();
+        }
+
+    });
+*/
 
 });

@@ -7,11 +7,11 @@ module.exports = function(deployer,network, accounts) {
 
     deployer.deploy(Migrations, {from: accounts[0]});
 
-  }else if(network==="goerli"){
+  }else if(network==="goerli" || network==="sepolia"){
 
     deployer.deploy(Migrations, {from: process.env.METAMASK_ADDRESS_CONTRACT_OWNER });
 
   }else{
-    console.log("not yes implementes");
+    console.log("not yet implemented, please check migration file");
   }
 };

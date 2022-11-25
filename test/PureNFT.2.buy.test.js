@@ -43,7 +43,7 @@ contract('PureNFT buy', function (accounts) {
     });
 
 
-    it('6.0 buy an NFT', async function () {
+    it('7.0 buy an NFT', async function () {
 
         let tx;
 
@@ -83,7 +83,7 @@ contract('PureNFT buy', function (accounts) {
     });
 
 
-    it('6.1 try to buy an NFT below the 100 threshold', async function () {
+    it('7.1 try to buy an NFT below the 100 threshold', async function () {
 
         let tx;
         const nft = mockdata[0];
@@ -98,7 +98,7 @@ contract('PureNFT buy', function (accounts) {
 
     });
 
-    it('6.1.1 try to buy an NFT without enough money', async function () {
+    it('7.1.1 try to buy an NFT without enough money', async function () {
 
         let tx;
         const nft = mockdata[1];
@@ -113,7 +113,7 @@ contract('PureNFT buy', function (accounts) {
 
     });
 
-    it('6.2 withdraw money', async function () {
+    it('7.2 withdraw money', async function () {
         let tx;
 
         const nft = mockdata[0];
@@ -184,7 +184,7 @@ contract('PureNFT buy', function (accounts) {
 
     });
 
-    it('6.2 withdraw peding not contract owner', async function () {
+    it('7.3 withdraw peding not contract owner', async function () {
 
         try {
             const nft = mockdata[0];
@@ -203,7 +203,33 @@ contract('PureNFT buy', function (accounts) {
 
     });
 
+    it('7.4 getWithdrawsAvailableByToken ', async function () {
 
+        let tx;
 
+        const nft = mockdata[0];
+
+        const newCopyright = "new licence buyer1";
+        const newLicense = "new copyright buyer1";
+        const newPrice = 10000;
+        const adquiredBy = 1000;
+
+        tx = await this.mynft.buy(nft.token, newLicense, newCopyright, newPrice, { from: buyer1, value: BN(adquiredBy) });
+
+        tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: owner });
+        expect(tx.toString()).eq('300');
+        tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: creator1 });
+        expect(tx.toString()).eq('700');
+        tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: buyer1 });
+        expect(tx.toString()).eq('0');
+
+        try{
+            tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: buyer2 });
+            expect.fail();
+        }catch(ex){
+            expect(ex).not.be.empty;
+        }
+
+    });
 
 });

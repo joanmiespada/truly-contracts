@@ -195,6 +195,48 @@ contract('PureNFT basic', function (accounts) {
         }
 
     });
+    it('3.0 enable/disable contract ', async function () {
+
+        let nft = mockdata[0];
+
+        let tx;
+
+        tx = await this.mynft.mint(
+            creator1,
+            nft.token,
+            nft.uriFile,
+            nft.hashFile,
+            nft.uriMetaFile,
+            nft.hashMetaFile,
+            nft.price,
+            nft.uriLicense,
+            nft.copyright
+        );
+
+        //expect(tx).not.be.empty;
+        expectEvent(tx, 'Minted', { owner: creator1, token: nft.token });
+
+        tx = await this.mynft.circuitBreaker();
+        expectEvent(tx, 'ContractPaused');
+
+        try {
+            tx = await this.mynft.getContentByToken(nft.token);
+            expect.fail();
+        } catch (ex) {
+            expect(ex).not.be.empty;
+        }
+
+        tx = await this.mynft.circuitBreaker();
+        expectEvent(tx, 'ContractEnabled');
+        try {
+            tx = await this.mynft.getContentByToken(nft.token);
+            expect(tx).not.be.empty;
+        } catch (ex) {
+            expect.fail();
+        }
+
+
+    });
 
 
 });

@@ -1,4 +1,4 @@
-require('dotenv').config(); 
+require('dotenv').config();
 
 const port = process.env.HOST_PORT || 9090
 
@@ -44,18 +44,19 @@ Then, run the migration with:
       fullHost: 'http://127.0.0.1:' + port,
       network_id: '9'
     },
-    compilers: {
-      solc: {
-        version: '0.8.11'
-      }
+
+  },
+  compilers: {
+    solc: {
+      version: '0.8.11'
     }
   },
   // solc compiler optimize
-  solc: {
+  //solc: {
   //   optimizer: {
   //     enabled: true,
   //     runs: 200
   //   },
   //   evmVersion: 'istanbul'
-  }
+  //}
 }

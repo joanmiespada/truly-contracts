@@ -93,7 +93,9 @@ module.exports = {
       network_id: 11155111, // Sepolia's id
       confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+      skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets )
+      gas: web3.utils.toWei('0.003', 'gwei'),   //3000000,
+      gasPrice: web3.utils.toWei('14.2', 'gwei'), // from  https://ethgasstation.info/
     },
     //
     // An additional network, but with some advanced options…
@@ -140,7 +142,8 @@ module.exports = {
   mocha: {
     // timeout: 100000
     reporter: 'eth-gas-reporter',
-    reporterOptions: { excludeContracts: ['Migrations'] }
+    reporterOptions: { excludeContracts: ['Migrations'] },
+    useColors: true
   },
 
   // Configure your compilers
@@ -164,7 +167,9 @@ module.exports = {
 
   api_keys: {
     etherscan: ETHERSCAN_API_KEY
-  }
+  },
+
+  sourceFetchers: ["etherscan","sourcify"]
 
   // Truffle DB is currently disabled by default; to enable it, change enabled:
   // false to enabled: true. The default storage location can also be

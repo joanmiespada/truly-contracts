@@ -11,7 +11,7 @@ module.exports = async function(deployer, network, accounts) {
 
     console.log("PureNFT deployed successfully at address: ", purenft.address, " at network: ", network );
 
-  }else if(network === "goerli" ){
+  }else if(network === "goerli" || network === "sepolia" ){
 
     await deployer.deploy(PureNFT , {from: process.env.METAMASK_ADDRESS_CONTRACT_OWNER });
     const purenft = await PureNFT.deployed();
@@ -20,6 +20,6 @@ module.exports = async function(deployer, network, accounts) {
 
 
   }else{
-    console.log("not implemented")
+    console.log("not yet implemented, please check deploy files")
   }
 };
