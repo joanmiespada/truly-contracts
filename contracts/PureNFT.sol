@@ -73,19 +73,13 @@ contract PureNFT {
     mapping(address => uint256) private userLastAction;
     uint256 throttleTime = 1; // block - 30 seconds;
 
-    event borrame1();
-    event borrame2();
-    event borrame3();
 
     modifier throttling() {
-        emit borrame1();
         if (userLastAction[msg.sender] == 0x0) {
-            emit borrame2();
             userLastAction[msg.sender] = 0;
         }
         require(block.number - throttleTime >= userLastAction[msg.sender], "you're calling super fast");
         userLastAction[msg.sender] = block.number;
-        emit borrame3();
         _;
     }
 
