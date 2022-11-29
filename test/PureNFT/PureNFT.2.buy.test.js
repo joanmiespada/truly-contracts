@@ -5,7 +5,7 @@ const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test
 
 // Load compiled artifacts
 const MyNFT = artifacts.require('PureNFT');
-const mockdata = require('./mockdata');
+const mockdata = require('../mockdata');
 
 // Start test block
 contract('PureNFT buy', function (accounts) {
@@ -216,15 +216,15 @@ contract('PureNFT buy', function (accounts) {
 
         tx = await this.mynft.buy(nft.token, newLicense, newCopyright, newPrice, { from: buyer1, value: BN(adquiredBy) });
 
-        tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: owner });
+        tx = await this.mynft.getWithdrawsForMeByToken(nft.token, { from: owner });
         expect(tx.toString()).eq('300');
-        tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: creator1 });
+        tx = await this.mynft.getWithdrawsForMeByToken(nft.token, { from: creator1 });
         expect(tx.toString()).eq('700');
-        tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: buyer1 });
+        tx = await this.mynft.getWithdrawsForMeByToken(nft.token, { from: buyer1 });
         expect(tx.toString()).eq('0');
 
         try{
-            tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: buyer2 });
+            tx = await this.mynft.getWithdrawsForMeByToken(nft.token, { from: buyer2 });
             expect.fail();
         }catch(ex){
             expect(ex).not.be.empty;

@@ -6,7 +6,7 @@ const Web3 = require('web3');
 
 // Load compiled artifacts
 const MyNFT = artifacts.require('LightNFT');
-const mockdata = require('./mockdata');
+const mockdata = require('../mockdata');
 
 // Start test block
 contract('LightNFT gas', function (accounts) {
@@ -48,13 +48,13 @@ contract('LightNFT gas', function (accounts) {
         tx = await this.mynft.mint(
             creator1,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             originalPriceWei,
-            nft.uriLicense,
-            nft.copyright,
+            //nft.uriLicense,
+            //nft.copyright,
             { from: owner }
         );
         // owner pay the minting
@@ -68,12 +68,12 @@ contract('LightNFT gas', function (accounts) {
         expect(BN(costForCreator1).eq(BN('0'))).to.be.true;
 
         //let's purchase the NFT
-        const newCopyright = "new licence buyer1";
-        const newLicense = "new copyright buyer1";
+        //const newCopyright = "new licence buyer1";
+        //const newLicense = "new copyright buyer1";
         const newPvp = 25; //in eth
         const newPriceWeis = this.web3.utils.toWei(newPvp.toString(), 'ether'); // in weis
 
-        tx = await this.mynft.buy(nft.token, newLicense, newCopyright, newPriceWeis, { from: buyer1, value: originalPriceWei });
+        tx = await this.mynft.buy(nft.token, newPriceWeis, { from: buyer1, value: originalPriceWei });
 
         //Buyer 1 must pay gas fees + original price
         var balanceBuyer1AfterPurchaseWei = await this.web3.eth.getBalance(buyer1);
@@ -179,13 +179,13 @@ contract('LightNFT gas', function (accounts) {
         tx = await this.mynft.mint(
             creator1,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             originalPriceWei,
-            nft.uriLicense,
-            nft.copyright,
+            //nft.uriLicense,
+            //nft.copyright,
             { from: owner }
         );
         var balanceCreator1BeforeWithdrawWei = await this.web3.eth.getBalance(creator1);

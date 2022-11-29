@@ -6,7 +6,7 @@ const Web3 = require('web3');
 
 // Load compiled artifacts
 const MyNFT = artifacts.require('PureNFT');
-const mockdata = require('./mockdata');
+const mockdata = require('../mockdata');
 
 // Start test block
 contract('PureNFT gas', function (accounts) {

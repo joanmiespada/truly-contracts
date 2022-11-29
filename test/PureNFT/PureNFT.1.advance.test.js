@@ -5,7 +5,7 @@ const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test
 
 // Load compiled artifacts
 const MyNFT = artifacts.require('PureNFT');
-const mockdata = require('./mockdata');
+const mockdata = require('../mockdata');
 
 // Start test block
 contract('PureNFT advance', function (accounts) {
@@ -142,12 +142,12 @@ contract('PureNFT advance', function (accounts) {
         } catch (ex) {
             expect(ex).not.be.empty;
         }
-        try {
-            await this.mynft.transferOwnership(creator1, nft.token, creator2, 10, { from: owner });
-            expect.fail();
-        } catch (ex) {
-            expect(ex).not.be.empty;
-        }
+        //try {
+        //    await this.mynft.transferOwnership(creator1, nft.token, creator2, 10, { from: owner });
+        //    expect.fail();
+        //} catch (ex) {
+        //    expect(ex).not.be.empty;
+        //}
 
 
         tx = await this.mynft.getOnwersByToken(nft.token);
@@ -173,6 +173,39 @@ contract('PureNFT advance', function (accounts) {
         expect(tx[1].percentatge).eq('20');
 
         expect(tx.length).be.eq(len);
+
+    });
+    
+    it('5.1 change ownership with others', async function () { 
+        const nft = mockdata[1];
+        let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
+            creator1,
+            nft.token,
+            nft.uriFile,
+            nft.hashFile,
+            nft.uriMetaFile,
+            nft.hashMetaFile,
+            nft.price,
+            nft.uriLicense,
+            nft.copyright
+        );
+        tx = await this.mynft.transferOwnership(creator1, nft.token, creator2, 10, { from: owner });
+        expectEvent(tx, 'Transfered', { token: nft.token, percentatge: BN(10), from: creator1, newFromPercentatge: BN(60), to: creator2, newToPercentate: BN(10) });
+
+        tx = await this.mynft.getOnwersByToken(nft.token);
+
+        expect(tx[0].owner).eq(owner);
+        expect(tx[0].percentatge).eq('30');
+
+        expect(tx[1].owner).eq(creator1);
+        expect(tx[1].percentatge).eq('60');
+
+        expect(tx[2].owner).eq(creator2);
+        expect(tx[2].percentatge).eq('10');
+
+
+        expect(tx.length).be.eq(3);
+
 
     });
 

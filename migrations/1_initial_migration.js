@@ -3,7 +3,7 @@ require('dotenv').config();
 var Migrations = artifacts.require("./Migrations.sol");
 
 module.exports = function(deployer,network, accounts) {
-  if(network === "ethdevelopment") {
+  if(network === "development") {
 
     deployer.deploy(Migrations, {from: accounts[0]});
 

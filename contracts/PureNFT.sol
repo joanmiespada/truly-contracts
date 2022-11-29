@@ -7,7 +7,7 @@ contract PureNFT {
     using IterableMapping for itmap;
 
     bool public contractPaused;
-
+    string private urlBase;
     address private constant ADDRESS_NULL = address(0x0);
     address private _contractOwner;
 
@@ -89,7 +89,7 @@ contract PureNFT {
         _contractOwner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
         _counter = 0;
         contractPaused = false;
-
+        urlBase="https://truly.camera";
         emit ContractSetupCompleted(_contractOwner);
     }
 
@@ -182,7 +182,8 @@ contract PureNFT {
             string memory uriLicense,
             string memory copyright,
             uint256 price,
-            string memory state
+            string memory state,
+            string memory uri
         )
     {
         require(bytes(token).length != 0, "token is mandatory");
@@ -192,6 +193,7 @@ contract PureNFT {
         );
         nNft storage nft = _UsersWithNfts[token];
         string memory sts = getStateName(_UsersWithNfts[token].state);
+        uri = concatenate(urlBase, token);
         return (
             nft.uriFile,
             nft.hashFile,
@@ -200,7 +202,8 @@ contract PureNFT {
             nft.uriLicense,
             nft.copyright,
             nft.price,
-            sts
+            sts,
+            uri 
         );
     }
 
@@ -277,7 +280,8 @@ contract PureNFT {
         return (balances);
     }
 
-    function getWithdrawsAvailableByToken(string memory token)
+
+    function getWithdrawsForMeByToken(string memory token)
         public
         view
         checkIfPaused
@@ -339,10 +343,10 @@ contract PureNFT {
             _UsersWithNfts[token].owners.contains(from),
             "from address must be among the owners"
         );
-        require(
-            _UsersWithNfts[token].owners.contains(to),
-            "to address must be among the owners"
-        );
+        //require(
+        //    _UsersWithNfts[token].owners.contains(to),
+        //    "to address must be among the owners"
+        //);
         require(
             _UsersWithNfts[token].owners.data[from].value.percentatge >=
                 percentatge,
@@ -361,12 +365,22 @@ contract PureNFT {
             "token state doesn't allow it"
         );*/
 
+        if(!_UsersWithNfts[token].owners.contains(to))
+        {
+           _UsersWithNfts[token].owners.insert(to, 0, 0);
+        }
+
         _UsersWithNfts[token]
             .owners
             .data[from]
             .value
             .percentatge -= percentatge;
-        _UsersWithNfts[token].owners.data[to].value.percentatge += percentatge;
+        _UsersWithNfts[token]
+            .owners
+            .data[to]
+            .value
+            .percentatge += percentatge;
+        
 
         emit Transfered(
             token,
@@ -505,5 +519,23 @@ contract PureNFT {
     function disableDMCAInfractionByToken(string memory token) public isOwner {
         _UsersWithNfts[token].state = nNftState.BlockByDMCA;
         emit EnabledToken(token);
+    }
+    
+    function withdrawOwner(uint256 amount) public isOwner {
+        (bool sent, ) = payable(_contractOwner).call{value: amount}("");
+        if (sent) {
+            emit Withdrawn(_contractOwner, amount);
+        } else {
+            //if transaction fails, then restore the original amount
+            revert WithdrawCancelled(_contractOwner, amount);
+        }
+    }
+
+    function setUrlBase(string memory uri) public isOwner {
+        urlBase = uri;
+    }
+
+    function concatenate(string memory a,string memory b) private pure returns (string memory){
+        return string(abi.encodePacked(a,'/',b));
     }
 }

@@ -45,13 +45,13 @@ contract('LightNFT basic', function (accounts) {
         tx = await this.mynft.mint(
             creator1,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             nft.price,
-            nft.uriLicense,
-            nft.copyright
+            //nft.uriLicense,
+            //nft.copyright
         );
 
         //expect(tx).not.be.empty;
@@ -63,13 +63,13 @@ contract('LightNFT basic', function (accounts) {
         tx = await this.mynft.mint(
             creator2,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             nft.price,
-            nft.uriLicense,
-            nft.copyright
+            //nft.uriLicense,
+            //nft.copyright
         );
         truffleAssert.eventEmitted(tx, 'Minted', (ev) => {
             return ev.owner == creator2 && ev.token == nft.token
@@ -81,13 +81,13 @@ contract('LightNFT basic', function (accounts) {
         tx = await this.mynft.mint(
             creator3,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             nft.price,
-            nft.uriLicense,
-            nft.copyright
+            //nft.uriLicense,
+            //nft.copyright
         );
 
         expectEvent(tx, 'Minted', { owner: creator3, token: nft.token });
@@ -105,13 +105,13 @@ contract('LightNFT basic', function (accounts) {
             await this.mynft.mint( //only creator1 has 70% and owner has 30%
                 '',
                 nft.token,
-                nft.uriFile,
+                //nft.uriFile,
                 nft.hashFile,
-                nft.uriMetaFile,
-                nft.hashMetaFile,
+                //nft.uriMetaFile,
+                //nft.hashMetaFile,
                 nft.price,
-                nft.uriLicense,
-                nft.copyright
+                //nft.uriLicense,
+                //nft.copyright
             )
             assert.fail();
         } catch (ex) {
@@ -122,13 +122,13 @@ contract('LightNFT basic', function (accounts) {
             let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
                 '0',
                 nft.token,
-                nft.uriFile,
+                //nft.uriFile,
                 nft.hashFile,
-                nft.uriMetaFile,
-                nft.hashMetaFile,
+                //nft.uriMetaFile,
+                //nft.hashMetaFile,
                 nft.price,
-                nft.uriLicense,
-                nft.copyright
+                //nft.uriLicense,
+                //nft.copyright
             );
             expect.fail();
         } catch (ex) {
@@ -138,13 +138,13 @@ contract('LightNFT basic', function (accounts) {
             let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
                 creator1,
                 '',
-                nft.uriFile,
+                //nft.uriFile,
                 nft.hashFile,
-                nft.uriMetaFile,
-                nft.hashMetaFile,
+                //nft.uriMetaFile,
+                //nft.hashMetaFile,
                 nft.price,
-                nft.uriLicense,
-                nft.copyright
+                //nft.uriLicense,
+                //nft.copyright
             );
             expect.fail();
         } catch (ex) {
@@ -154,24 +154,24 @@ contract('LightNFT basic', function (accounts) {
             let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
                 creator1,
                 'token repe',
-                nft.uriFile,
+                //nft.uriFile,
                 nft.hashFile,
-                nft.uriMetaFile,
-                nft.hashMetaFile,
+                //nft.uriMetaFile,
+                //nft.hashMetaFile,
                 nft.price,
-                nft.uriLicense,
-                nft.copyright
+                //nft.uriLicense,
+                //nft.copyright
             );
             tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
                 creator2,
                 'token repe',
-                nft.uriFile,
+                //nft.uriFile,
                 nft.hashFile,
-                nft.uriMetaFile,
-                nft.hashMetaFile,
+                //nft.uriMetaFile,
+                //nft.hashMetaFile,
                 nft.price,
-                nft.uriLicense,
-                nft.copyright
+                //nft.uriLicense,
+                //nft.copyright
             );
             expect.fail();
         } catch (ex) {
@@ -181,13 +181,13 @@ contract('LightNFT basic', function (accounts) {
             let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
                 creator1,
                 nft.token,
-                '',
-                nft.hashFile,
-                nft.uriMetaFile,
-                nft.hashMetaFile,
+                //'',
+                '', //nft.hashFile,
+                //nft.uriMetaFile,
+                //nft.hashMetaFile,
                 nft.price,
-                nft.uriLicense,
-                nft.copyright
+                //nft.uriLicense,
+                //nft.copyright
             );
             expect.fail();
         } catch (ex) {
@@ -204,13 +204,13 @@ contract('LightNFT basic', function (accounts) {
         tx = await this.mynft.mint(
             creator1,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             nft.price,
-            nft.uriLicense,
-            nft.copyright
+            //nft.uriLicense,
+            //nft.copyright
         );
 
         //expect(tx).not.be.empty;
@@ -234,7 +234,6 @@ contract('LightNFT basic', function (accounts) {
         } catch (ex) {
             expect.fail();
         }
-
 
     });
 

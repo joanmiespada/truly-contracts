@@ -55,3 +55,7 @@ PureNFT is deployed at:
 
 - goerli: 0xeE923c595254dCA7f38C804A2D765bbd53ABbe29 // deprecated  
 - goerli: 0x90E2ff151F650972cda7f061198Af6abd463f542
+
+LightNFT is deployed at: 
+
+- goerli: 

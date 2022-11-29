@@ -5,7 +5,7 @@ const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test
 
 // Load compiled artifacts
 const MyNFT = artifacts.require('LightNFT');
-const mockdata = require('./mockdata');
+const mockdata = require('../mockdata');
 
 // Start test block
 contract('LightNFT advance', function (accounts) {
@@ -31,25 +31,26 @@ contract('LightNFT advance', function (accounts) {
         tx = await this.mynft.mint(
             creator1,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             nft.price,
-            nft.uriLicense,
-            nft.copyright
+            //nft.uriLicense,
+            //nft.copyright
         );
 
         tx = await this.mynft.getContentByToken(nft.token);
 
-        expect(tx.uriFile).eq(nft.uriFile)
-        expect(tx.hashFile).eq(nft.hashFile)
-        expect(tx.uriMetaFile).eq(nft.uriMetaFile)
-        expect(tx.hashMetaFile).eq(nft.hashMetaFile)
-        expect(tx.price.toString()).eq(String(nft.price))
-        expect(tx.uriLicense).eq(nft.uriLicense)
-        expect(tx.copyright).eq(nft.copyright)
-        expect(tx.state).eq('Active')
+        //expect(tx.uriFile).eq(nft.uriFile)
+        expect(tx.hashFile).eq(nft.hashFile);
+        //expect(tx.uriMetaFile).eq(nft.uriMetaFile)
+        //expect(tx.hashMetaFile).eq(nft.hashMetaFile)
+        expect(tx.price.toString()).eq(String(nft.price));
+        //expect(tx.uriLicense).eq(nft.uriLicense)
+        //expect(tx.copyright).eq(nft.copyright)
+        expect(tx.state).eq('Active');
+        expect(tx.uri).eq('https://truly.camera/'+nft.token);
 
         try {
             tx = await this.mynft.getContentByToken('xyz');
@@ -67,13 +68,13 @@ contract('LightNFT advance', function (accounts) {
         tx = await this.mynft.mint(
             creator1,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             nft.price,
-            nft.uriLicense,
-            nft.copyright
+            //nft.uriLicense,
+            //nft.copyright
         );
 
         tx = await this.mynft.getOnwersByToken(nft.token);
@@ -92,13 +93,13 @@ contract('LightNFT advance', function (accounts) {
         let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
             creator1,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             nft.price,
-            nft.uriLicense,
-            nft.copyright
+            //nft.uriLicense,
+            //nft.copyright
         );
         try {
             await this.mynft.transferOwnership(creator1, 'xyz', creator1, 10, { from: owner });
@@ -142,12 +143,11 @@ contract('LightNFT advance', function (accounts) {
         } catch (ex) {
             expect(ex).not.be.empty;
         }
-        try {
-            await this.mynft.transferOwnership(creator1, nft.token, creator2, 10, { from: owner });
-            expect.fail();
-        } catch (ex) {
-            expect(ex).not.be.empty;
-        }
+        //try {
+        //    expect.fail();
+        //} catch (ex) {
+        //    expect(ex).not.be.empty;
+        //}
 
 
         tx = await this.mynft.getOnwersByToken(nft.token);
@@ -176,6 +176,39 @@ contract('LightNFT advance', function (accounts) {
 
     });
 
+    it('5.1 change ownership with others', async function () { 
+        const nft = mockdata[1];
+        let tx = await this.mynft.mint( //only creator1 has 70% and owner has 30%
+            creator1,
+            nft.token,
+            //nft.uriFile,
+            nft.hashFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
+            nft.price,
+            //nft.uriLicense,
+            //nft.copyright
+        );
+        tx = await this.mynft.transferOwnership(creator1, nft.token, creator2, 10, { from: owner });
+        expectEvent(tx, 'Transfered', { token: nft.token, percentatge: BN(10), from: creator1, newFromPercentatge: BN(60), to: creator2, newToPercentate: BN(10) });
+
+        tx = await this.mynft.getOnwersByToken(nft.token);
+
+        expect(tx[0].owner).eq(owner);
+        expect(tx[0].percentatge).eq('30');
+
+        expect(tx[1].owner).eq(creator1);
+        expect(tx[1].percentatge).eq('60');
+
+        expect(tx[2].owner).eq(creator2);
+        expect(tx[2].percentatge).eq('10');
+
+
+        expect(tx.length).be.eq(3);
+
+
+    });
+
     it('6.0 disable/enable token', async function () {
 
         let nft = mockdata[0];
@@ -184,13 +217,13 @@ contract('LightNFT advance', function (accounts) {
         tx = await this.mynft.mint(
             creator1,
             nft.token,
-            nft.uriFile,
+            //nft.uriFile,
             nft.hashFile,
-            nft.uriMetaFile,
-            nft.hashMetaFile,
+            //nft.uriMetaFile,
+            //nft.hashMetaFile,
             nft.price,
-            nft.uriLicense,
-            nft.copyright, 
+            //nft.uriLicense,
+            //nft.copyright, 
             { from: owner }
         );
 
@@ -218,8 +251,8 @@ contract('LightNFT advance', function (accounts) {
         expect(tx.state).eq('Active');
 
         try {
-            tx = await this.mynft.buy(nft.token, newLicense, newCopyright, 1000, { from: buyer1, value: nft.price+1 });
-            expectEvent(tx, 'Sold', { buyer: buyer1, token: nft.token, amount: BN( nft.price+1 ), newLicense: newLicense, newCopyright: newCopyright });
+            tx = await this.mynft.buy(nft.token, 1000, { from: buyer1, value: nft.price+1 });
+            expectEvent(tx, 'Sold', { buyer: buyer1, token: nft.token, amount: BN( nft.price+1 ) });
         } catch (ex) {
             expect.fail();
         }

@@ -5,7 +5,7 @@ const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test
 
 // Load compiled artifacts
 const MyNFT = artifacts.require('LightNFT');
-const mockdata = require('./mockdata');
+const mockdata = require('../mockdata');
 
 // Start test block
 contract('LightNFT buy', function (accounts) {
@@ -29,13 +29,13 @@ contract('LightNFT buy', function (accounts) {
             return this.mynft.mint(
                 accounts[9 - index],
                 nft.token,
-                nft.uriFile,
+                //nft.uriFile,
                 nft.hashFile,
-                nft.uriMetaFile,
-                nft.hashMetaFile,
+                //nft.uriMetaFile,
+                //nft.hashMetaFile,
                 nft.price,
-                nft.uriLicense,
-                nft.copyright
+                //nft.uriLicense,
+                //nft.copyright
             );
         }));
 
@@ -49,24 +49,44 @@ contract('LightNFT buy', function (accounts) {
 
         const nft = mockdata[0];
         tx = await this.mynft.getContentByToken(nft.token);
+        expect(tx.price.toNumber()).eq(nft.price);
+        
+        tx = await this.mynft.getOnwersByToken(nft.token);
+        expect(tx.length).eq(2);
+        expect(tx[0].owner).eq(owner);
+        expect(tx[0].percentatge).eq('30');
+        expect(tx[1].owner).eq(creator1);
+        expect(tx[1].percentatge).eq('70');
 
-        expect(tx.uriLicense).eq(nft.uriLicense)
-        expect(tx.copyright).eq(nft.copyright)
 
-        const newCopyright = "new licence buyer1";
-        const newLicense = "new copyright buyer1";
+        //expect(tx.uriLicense).eq(nft.uriLicense)
+        //expect(tx.copyright).eq(nft.copyright)
+
+        //const newCopyright = "new licence buyer1";
+        //const newLicense = "new copyright buyer1";
         const newPrice = 1000;
         const adquiredBy = 100;
-        tx = await this.mynft.buy(nft.token, newLicense, newCopyright, newPrice, { from: buyer1, value: adquiredBy });
+        tx = await this.mynft.buy(nft.token, newPrice, { from: buyer1, value: adquiredBy });
 
-        expectEvent(tx, 'Sold', { buyer: buyer1, token: nft.token, amount: BN(adquiredBy), newLicense: newLicense, newCopyright: newCopyright });
+        expectEvent(tx, 'Sold', { buyer: buyer1, token: nft.token, amount: BN(adquiredBy)  });
 
         tx = await this.mynft.getContentByToken(nft.token);
-        expect(tx.uriLicense).eq(newLicense);
-        expect(tx.copyright).eq(newCopyright);
+        //expect(tx.uriLicense).eq(newLicense);
+        //expect(tx.copyright).eq(newCopyright);
         expect(tx.price.toNumber()).eq(newPrice);
 
-        tx = await this.mynft.getPendingWithdrawsByToken(nft.token);
+        tx = await this.mynft.getOnwersByToken(nft.token);
+        expect(tx.length).eq(1);
+        expect(tx[0].owner).eq(buyer1);
+        expect(tx[0].percentatge).eq('100');
+
+        try{
+            tx = await this.mynft.getPendingWithdrawsByToken(nft.token, {from: creator1});
+            expect.fail();
+        }catch(ex){
+            expect(ex).not.be.empty;
+        }
+        tx = await this.mynft.getPendingWithdrawsByToken(nft.token, {from: owner});
 
         expect(tx[0].owner).eq(owner);
         expect(tx[0].percentatge).eq('0');
@@ -80,6 +100,9 @@ contract('LightNFT buy', function (accounts) {
         expect(tx[2].percentatge).eq('100');
         expect(tx[2].amount).eq('0');
 
+        //tx = await this.mynft.(nft.token, {from: creator1});
+        //expect(tx.toString()).eq('70')
+
     });
 
 
@@ -89,12 +112,12 @@ contract('LightNFT buy', function (accounts) {
         const nft = mockdata[0];
         tx = await this.mynft.getContentByToken(nft.token);
 
-        expect(tx.uriLicense).eq(nft.uriLicense)
-        expect(tx.copyright).eq(nft.copyright)
+        //expect(tx.uriLicense).eq(nft.uriLicense)
+        //expect(tx.copyright).eq(nft.copyright)
 
-        const newCopyright = "new licence buyer1";
-        const newLicense = "new copyright buyer1";
-        await expectRevert.unspecified(this.mynft.buy(nft.token, newLicense, newCopyright, 1000, { from: buyer1, value: 90 }));
+        //const newCopyright = "new licence buyer1";
+        //const newLicense = "new copyright buyer1";
+        await expectRevert.unspecified(this.mynft.buy(nft.token, 1000, { from: buyer1, value: 90 }));
 
     });
 
@@ -104,12 +127,12 @@ contract('LightNFT buy', function (accounts) {
         const nft = mockdata[1];
         tx = await this.mynft.getContentByToken(nft.token);
 
-        expect(tx.uriLicense).eq(nft.uriLicense)
-        expect(tx.copyright).eq(nft.copyright)
+        //expect(tx.uriLicense).eq(nft.uriLicense)
+        //expect(tx.copyright).eq(nft.copyright)
 
-        const newCopyright = "new licence buyer1";
-        const newLicense = "new copyright buyer1";
-        await expectRevert.unspecified(this.mynft.buy(nft.token, newLicense, newCopyright, 1000, { from: buyer1, value: 499 }));
+        //const newCopyright = "new licence buyer1";
+        //const newLicense = "new copyright buyer1";
+        await expectRevert.unspecified(this.mynft.buy(nft.token, 1000, { from: buyer1, value: 499 }));
 
     });
 
@@ -118,17 +141,17 @@ contract('LightNFT buy', function (accounts) {
 
         const nft = mockdata[0];
 
-        const newCopyright = "new licence buyer1";
-        const newLicense = "new copyright buyer1";
+        //const newCopyright = "new licence buyer1";
+        //const newLicense = "new copyright buyer1";
         const newPrice = 10000;
         const adquiredBy = 1000;
 
         let expectedMoneyOwner = (adquiredBy / 100) * 30;
         let expectedMoneyCreator = (adquiredBy / 100) * 70;
 
-        tx = await this.mynft.buy(nft.token, newLicense, newCopyright, newPrice, { from: buyer1, value: BN(adquiredBy) });
+        tx = await this.mynft.buy(nft.token, newPrice, { from: buyer1, value: BN(adquiredBy) });
 
-        expectEvent(tx, 'Sold', { buyer: buyer1, token: nft.token, amount: BN(adquiredBy), newLicense: newLicense, newCopyright: newCopyright });
+        expectEvent(tx, 'Sold', { buyer: buyer1, token: nft.token, amount: BN(adquiredBy) });
 
         tx = await this.mynft.getPendingWithdrawsByToken(nft.token, { from: owner });
 
@@ -209,22 +232,22 @@ contract('LightNFT buy', function (accounts) {
 
         const nft = mockdata[0];
 
-        const newCopyright = "new licence buyer1";
-        const newLicense = "new copyright buyer1";
+        //const newCopyright = "new licence buyer1";
+        //const newLicense = "new copyright buyer1";
         const newPrice = 10000;
         const adquiredBy = 1000;
 
-        tx = await this.mynft.buy(nft.token, newLicense, newCopyright, newPrice, { from: buyer1, value: BN(adquiredBy) });
+        tx = await this.mynft.buy(nft.token, newPrice, { from: buyer1, value: BN(adquiredBy) });
 
-        tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: owner });
+        tx = await this.mynft.getWithdrawsForMeByToken(nft.token, { from: owner });
         expect(tx.toString()).eq('300');
-        tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: creator1 });
+        tx = await this.mynft.getWithdrawsForMeByToken(nft.token, { from: creator1 });
         expect(tx.toString()).eq('700');
-        tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: buyer1 });
+        tx = await this.mynft.getWithdrawsForMeByToken(nft.token, { from: buyer1 });
         expect(tx.toString()).eq('0');
 
         try{
-            tx = await this.mynft.getWithdrawsAvailableByToken(nft.token, { from: buyer2 });
+            tx = await this.mynft.getWithdrawsForMeByToken(nft.token, { from: buyer2 });
             expect.fail();
         }catch(ex){
             expect(ex).not.be.empty;

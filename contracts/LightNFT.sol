@@ -7,7 +7,7 @@ contract LightNFT {
     //using IterableMapping for itmap;
 
     bool public contractPaused;
-
+    string private urlBase;
     address private constant ADDRESS_NULL = address(0x0);
     address private _contractOwner;
 
@@ -26,7 +26,7 @@ contract LightNFT {
         //  itmap owners; //mapping between address and nfts
         mapping(address => nNftOwner) owners;
         address[] _owners;
-        //  string hashFile;
+        string hashFile;
         //  string uriFile;
         //  string hashMetaFile;
         //  string uriMetaFile;
@@ -93,6 +93,7 @@ contract LightNFT {
         _contractOwner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
         _counter = 0;
         contractPaused = false;
+        urlBase = "https://truly.camera";
 
         emit ContractSetupCompleted(_contractOwner);
     }
@@ -122,21 +123,21 @@ contract LightNFT {
         address to,
         string memory token,
         //string memory uriFile,
-        //string memory hashFile,
+        string memory hashFile,
         //string memory uriMetaInfo,
         //string memory hashMetaInfo,
         uint256 price
     )
         public
-        //string memory uriLicense,
-        //string memory copyright
+        // string memory uriLicense,
+        // string memory copyright
         isOwner
         returns (bool)
     {
         require(to != ADDRESS_NULL, "No null address is allowed");
         require(bytes(token).length != 0, "token is mandatory");
         //require(bytes(uriFile).length != 0, "uriFile is mandatory");
-        //require(bytes(hashFile).length != 0, "hashFile is mandatory");
+        require(bytes(hashFile).length != 0, "hashFile is mandatory");
         //require(bytes(uriMetaInfo).length != 0, "uriMetaInfo is mandatory");
         //require(bytes(hashMetaInfo).length != 0, "hashMetaInfo is mandatory");
         //require(bytes(uriLicense).length != 0, "uriLicense is mandatory");
@@ -152,7 +153,7 @@ contract LightNFT {
         _UsersWithNfts[token].owners[to].amountToWithdraw = 0;
         _UsersWithNfts[token]._owners.push(to);
 
-        //_UsersWithNfts[token].hashFile = hashFile;
+        _UsersWithNfts[token].hashFile = hashFile;
         //_UsersWithNfts[token].uriFile = uriFile;
         //_UsersWithNfts[token].hashMetaFile = hashMetaInfo;
         //_UsersWithNfts[token].uriMetaFile = uriMetaInfo;
@@ -186,11 +187,12 @@ contract LightNFT {
         checkIfPaused
         returns (
             //string memory uriFile,
-            //string memory hashFile,
+            string memory hashFile,
             //string memory uriMetaFile,
             //string memory hashMetaFile,
             //string memory uriLicense,
             //string memory copyright,
+            string memory uri,
             uint256 price,
             string memory state
         )
@@ -201,11 +203,12 @@ contract LightNFT {
         string memory sts = getStateName(_UsersWithNfts[token].state);
         return (
             //nft.uriFile,
-            //nft.hashFile,
+            nft.hashFile,
             //nft.uriMetaFile,
             //nft.hashMetaFile,
             //nft.uriLicense,
             //nft.copyright,
+            concatenate(urlBase, token),
             nft.price,
             sts
         );
@@ -225,110 +228,70 @@ contract LightNFT {
         require(bytes(token).length != 0, "token is mandatory");
         require(_UsersWithNfts[token].exist, "token doesn't exist");
         uint256 total = _UsersWithNfts[token]._owners.length;
-        Ownership[] memory ownees = new Ownership[](total);
-
+        uint256 subtotal = 0;
+        for (uint256 i = 0; i < total; i++) {
+            address aux = _UsersWithNfts[token]._owners[i];
+            if (_UsersWithNfts[token].owners[aux].percentatge > 0) {
+                subtotal++;
+            }
+        }
+        Ownership[] memory ownees = new Ownership[](subtotal);
+        uint256 j = 0;
         for (uint256 i = 0; i < total; i++) {
             address aux = _UsersWithNfts[token]._owners[i];
             nNftOwner storage ow = _UsersWithNfts[token].owners[aux];
             if (ow.percentatge > 0) {
-                ownees[i].owner = aux;
-                ownees[i].percentatge = ow.percentatge;
-                //_UsersWithNfts[token]
-                //    .owners[aux]
-                //    .percentatge;
+                ownees[j].owner = aux;
+                ownees[j].percentatge = ow.percentatge;
+                j++;
             }
         }
-
         return (ownees);
     }
 
-    /*
-    function isOnwerByToken(string memory token, address to)
-        public
-        view
-        isOwner
-        returns (uint256)
-    {
-        require(to != ADDRESS_NULL, "No null address is allowed");
-        require(bytes(token).length != 0, "token is mandatory");
-        require(
-            bytes(_UsersWithNfts[token].hashFile).length != 0,
-            "token doesn't exist"
-        );
-        nNftOwner item = _UsersWithNfts[token].owners[to];
-
-        if (bytes(item).length == 0) return 0;
-        else return item.percentatge;
-    }
-*/
-
-    /*
     struct Withdrawship {
         address owner;
         uint256 amount;
         uint256 percentatge;
     }
-*/
-    function getPendingWithdrawsByToken(string memory token, address to)
+
+    function getPendingWithdrawsByToken(string memory token)
         public
         view
         isOwner
-        returns (uint256)
-    {
-        require(to != ADDRESS_NULL, "No null address is allowed");
-        require(bytes(token).length != 0, "token is mandatory");
-        require(_UsersWithNfts[token].exist, "token doesn't exist");
-        require(
-            _UsersWithNfts[token].owners[to].percentatge != 0,
-            "address doesn't own the token"
-        );
-        return _UsersWithNfts[token].owners[to].amountToWithdraw;
-    }
-
-    function haveIPendingWithdrawsByToken(string memory token)
-        public
-        view
-        returns (uint256)
+        returns (Withdrawship[] memory)
     {
         require(bytes(token).length != 0, "token is mandatory");
         require(_UsersWithNfts[token].exist, "token doesn't exist");
-        require(
-            _UsersWithNfts[token].owners[msg.sender].percentatge != 0,
-            "address doesn't own the token"
-        );
-        return _UsersWithNfts[token].owners[msg.sender].amountToWithdraw;
+
+        uint256 total = _UsersWithNfts[token]._owners.length;
+        Withdrawship[] memory ownees = new Withdrawship[](total);
+
+        for (uint256 i = 0; i < total; i++) {
+            address aux = _UsersWithNfts[token]._owners[i];
+            nNftOwner storage ow = _UsersWithNfts[token].owners[aux];
+            ownees[i].owner = aux;
+            ownees[i].percentatge = ow.percentatge;
+            ownees[i].amount = ow.amountToWithdraw;
+        }
+        return (ownees);
     }
 
-    /*
-    function getWithdrawsAvailableByToken(string memory token)
+    function getWithdrawsForMeByToken(string memory token)
         public
         view
         checkIfPaused
-        returns (uint256 funds)
+        returns (uint256)
     {
         require(bytes(token).length != 0, "token is mandatory");
-        require(
-            bytes(_UsersWithNfts[token].hashFile).length != 0,
-            "token doesn't exist"
-        );
-        require(
-            _UsersWithNfts[token].owners.contains(msg.sender),
-            "address must be among the owners"
-        );
-
-        funds = 0;
-        address owner = msg.sender;
-
-        (bool found, Iterator i) = _UsersWithNfts[token].owners.find(owner);
-
-        if (!found) {
-            revert NoOwner();
-        }
-
-        (, , uint256 amount) = _UsersWithNfts[token].owners.iterateGet(i);
-        return amount;
+        require(_UsersWithNfts[token].exist, "token doesn't exist");
+        //require(
+        //    _UsersWithNfts[token].owners[msg.sender].percentatge != 0,
+        //    "address doesn't own the token"
+        //);
+        return _UsersWithNfts[token].owners[msg.sender].amountToWithdraw;
     }
-*/
+
     function getTotalMinted() public view isOwner returns (uint256) {
         return _counter;
     }
@@ -359,10 +322,10 @@ contract LightNFT {
             _UsersWithNfts[token].owners[from].percentatge != 0,
             "from address must be among the owners"
         );
-        require(
-            _UsersWithNfts[token].owners[to].percentatge != 0,
-            "to address must be among the owners"
-        );
+        //require(
+        //    _UsersWithNfts[token].owners[to].percentatge != 0,
+        //    "to address must be among the owners"
+        //);
         require(
             _UsersWithNfts[token].owners[from].percentatge >= percentatge,
             //_UsersWithNfts[token].owners[from].value >= percentatge,
@@ -380,6 +343,13 @@ contract LightNFT {
 
         _UsersWithNfts[token].owners[from].percentatge -= percentatge;
         _UsersWithNfts[token].owners[to].percentatge += percentatge;
+
+        uint256 total = _UsersWithNfts[token]._owners.length;
+        bool found = false;
+        for (uint256 i = 0; i < total && !found; i++) {
+            if (_UsersWithNfts[token]._owners[i] == to) found = true;
+        }
+        if (!found) _UsersWithNfts[token]._owners.push(to);
 
         emit Transfered(
             token,
@@ -420,7 +390,7 @@ contract LightNFT {
             "you're already an owner"
         );
 
-        address buyer = payable(msg.sender);
+        address buyer = msg.sender; // payable(msg.sender);
 
         //buyer transfer money to contract
         uint256 deposit = msg.value;
@@ -456,8 +426,9 @@ contract LightNFT {
             }
         }
 
-        _UsersWithNfts[token].owners[msg.sender].percentatge = 100;
-        _UsersWithNfts[token].owners[msg.sender].amountToWithdraw = 0;
+        _UsersWithNfts[token].owners[buyer].percentatge = 100;
+        _UsersWithNfts[token].owners[buyer].amountToWithdraw = 0;
+        _UsersWithNfts[token]._owners.push(buyer);
         //_UsersWithNfts[token].uriLicense = newLicence;
         //_UsersWithNfts[token].copyright = newCopyright;
         _UsersWithNfts[token].price = newPrice;
@@ -515,4 +486,15 @@ contract LightNFT {
         }
     }
 
+    function setUrlBase(string memory uri) public isOwner {
+        urlBase = uri;
+    }
+
+    function concatenate(string memory a, string memory b)
+        private
+        pure
+        returns (string memory)
+    {
+        return string(abi.encodePacked(a, "/", b));
+    }
 }

@@ -9,7 +9,7 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/truffle/build/cli.bundled.js",
-            "args": ["test","./test/LightNFT/LightNFT.2.buy.test.js"],
+            "args": ["test","./test/LightNFT/LightNFT.2.buy.test.js","--network","development"],
             "cwd": "${workspaceRoot}",
             "outFiles": [
                 "${workspaceRoot}/test/**/*"
@@ -20,18 +20,18 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/truffle/build/cli.bundled.js",
-            "args": ["test","./test/LightNFT/LightNFT.0.basic.test.js"],
+            "args": ["test","./test/LightNFT/LightNFT.0.basic.test.js","--network","development"],
             "cwd": "${workspaceRoot}",
             "outFiles": [
                 "${workspaceRoot}/test/**/*"
             ],
           },
           {
-            "name": "run advance tests",
+            "name": "run light advance tests",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/truffle/build/cli.bundled.js",
-            "args": ["test","./test/LightNFT/LightNFT.1.advance.test.js"],
+            "args": ["test","./test/LightNFT/LightNFT.1.advance.test.js","--network","development"],
             "cwd": "${workspaceRoot}",
             "outFiles": [
                 "${workspaceRoot}/test/**/*"
@@ -53,22 +53,23 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/truffle/build/cli.bundled.js",
-            "args": ["test","./test/LightNFT/LightNFT.3.gas_balance.test.js"],
+            "args": ["test","./test/LightNFT/LightNFT.3.gas_balance.test.js","--network","development"],
             "cwd": "${workspaceRoot}",
             "outFiles": [
                 "${workspaceRoot}/test/**/*"
             ],
           },
           {
-            "name": "run buy test",
+            "name": "run Pure advance tests",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/truffle/build/cli.bundled.js",
-            "args": ["test","./test/LightNFT/LightNFT.buy.test.js"],
+            "args": ["test","./test/PureNFT/PureNFT.1.advance.test.js","--network","development"],
             "cwd": "${workspaceRoot}",
             "outFiles": [
                 "${workspaceRoot}/test/**/*"
             ],
-          }
+          },
+          
     ]
 }
