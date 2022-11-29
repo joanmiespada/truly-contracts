@@ -71,21 +71,22 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     //
-    development: {
+    ethdevelopment: {
       host: "127.0.0.1",     // Localhost (default: none)
       port: 8545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
-      gas: web3.utils.toWei('0.0067', 'gwei'),   //6700000,
-      gasPrice: web3.utils.toWei('14.2', 'gwei'),
+      gas: web3.utils.toWei('0.0067', 'gwei'),   //6700000, // gas limit
+      gasPrice: web3.utils.toWei('8', 'gwei'),
     },
-    mainnet: {
+    ethmainnet: {
       provider: () => new HDWalletProvider(METAMASK_MNEMONIC, `https://mainnet.infura.io/v3/${INFURA_API_KEY}`),
       network_id: 1,       // Mainnet's id
       confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
-      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      timeoutBlocks: 50,  // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets )
       gas: web3.utils.toWei('0.005', 'gwei'),   //5000000,
-      gasPrice: web3.utils.toWei('14.2', 'gwei'), // from  https://ethgasstation.info/
+      gasPrice: web3.utils.toWei('9.5', 'gwei'), // from  https://ethgasstation.info/  https://etherscan.io/gastracker
+      networkCheckTimeout: 10000,
 
     },
     sepolia: {
@@ -115,7 +116,10 @@ module.exports = {
       network_id: 5,       // Goerli's id
       confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+      skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets )
+      networkCheckTimeout: 10000,
+      gas: web3.utils.toWei('0.003', 'gwei'),   //3000000,
+      gasPrice: web3.utils.toWei('2.51', 'gwei'), // from  https://goerli.etherscan.io/tx/0xdaac5a0abe5bb422c4127976c15ce0cba091ef3b012b1c72297f4ce7a822ae5a
     },
     //
     // Useful for private networks

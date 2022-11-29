@@ -41,11 +41,17 @@ https://github.com/tronprotocol/tronbox
 
 # solc abi compiler
 
-- solc -o build --bin --abi contracts/*.sol
+- solc -o ./build/bin --bin --abi contracts/*.sol
 
+# count contract bytes
+
+$ wc -c < ./build/bin/PureNFT.bin
+ 42712
+$ ls -l  ./build/bin/PureNFT.bin
 
 # contract address:
 
 PureNFT is deployed at: 
 
-- goerli: 0xeE923c595254dCA7f38C804A2D765bbd53ABbe29 
+- goerli: 0xeE923c595254dCA7f38C804A2D765bbd53ABbe29 // deprecated  
+- goerli: 0x90E2ff151F650972cda7f061198Af6abd463f542

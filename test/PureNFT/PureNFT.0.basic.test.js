@@ -5,7 +5,7 @@ const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test
 
 // Load compiled artifacts
 const MyNFT = artifacts.require('PureNFT');
-const mockdata = require('./mockdata');
+const mockdata = require('../mockdata');
 
 // Start test block
 contract('PureNFT basic', function (accounts) {
