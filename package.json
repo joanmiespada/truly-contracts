@@ -2,7 +2,7 @@
   "name": "purenft",
   "version": "1.0.0",
   "description": "Open tron local: http://127.0.0.1:9090",
-  "main": "tronbox-config.js",
+  "main": "truffle-config.js",
   "directories": {
     "test": "test"
   },
@@ -17,18 +17,18 @@
   "devDependencies": {
     "@openzeppelin/test-environment": "^0.1.9",
     "@openzeppelin/test-helpers": "^0.5.16",
-    "@truffle/hdwallet-provider": "^2.1.1",
+    "@truffle/hdwallet-provider": "^2.1.5",
     "chai": "^4.3.7",
     "coveralls": "^3.1.1",
     "dotenv": "^16.0.3",
     "eth-gas-reporter": "^0.2.25",
     "ethers": "^5.7.2",
-    "ganache": "^7.5.0",
+    "ganache": "^7.7.3",
     "ganache-cli": "^6.12.2",
     "solidity-coverage": "^0.8.2",
-    "truffle": "^5.6.5",
+    "truffle": "^5.7.3",
     "truffle-assertions": "^0.9.2",
-    "truffle-plugin-verify": "^0.6.0",
+    "truffle-plugin-verify": "^0.6.1",
     "uuid": "^9.0.0",
     "web3": "^1.8.1"
   }

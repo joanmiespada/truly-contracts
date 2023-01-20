@@ -109,6 +109,10 @@ contract PureNFT {
         }
     }
 
+    function contractIsPaused() public view returns(bool){
+        return contractPaused;
+    }
+
     modifier checkIfPaused() {
         require(contractPaused == false);
         _;

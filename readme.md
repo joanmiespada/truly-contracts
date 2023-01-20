@@ -1,3 +1,9 @@
+# Pure NFT infrastructure
+
+Run commands:
+- docker-compose up -d
+- build_deploy_local.sh
+
 ## docker command
 
 Open tron local: http://127.0.0.1:9090
@@ -37,7 +43,7 @@ https://github.com/tronprotocol/tronbox
 
 ## ganache docker image
 
-- $ docker run --detach --publish 8545:8545 trufflesuite/ganache:latest
+- $ docker build .
 
 # solc abi compiler
 
@@ -46,16 +52,5 @@ https://github.com/tronprotocol/tronbox
 # count contract bytes
 
 $ wc -c < ./build/bin/PureNFT.bin
- 42712
 $ ls -l  ./build/bin/PureNFT.bin
 
-# contract address:
-
-PureNFT is deployed at: 
-
-- goerli: 0xeE923c595254dCA7f38C804A2D765bbd53ABbe29 // deprecated  
-- goerli: 0x90E2ff151F650972cda7f061198Af6abd463f542
-
-LightNFT is deployed at: 
-
-- goerli: 

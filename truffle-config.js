@@ -116,10 +116,10 @@ module.exports = {
       network_id: 5,       // Goerli's id
       confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-      skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets )
-      //networkCheckTimeout: 10000,
-      //gas: web3.utils.toWei('0.003', 'gwei'),   //3000000,
-      //gasPrice: web3.utils.toWei('4.5', 'gwei'), // from  https://goerli.etherscan.io/tx/0xdaac5a0abe5bb422c4127976c15ce0cba091ef3b012b1c72297f4ce7a822ae5a
+      skipDryRun: false,     // Skip dry run before migrations? (default: false for public nets )
+      networkCheckTimeout: 10000,
+      gas: web3.utils.toWei('0.003', 'gwei'),   //3000000,
+      gasPrice: web3.utils.toWei('8.5', 'gwei'), // from  https://goerli.etherscan.io/tx/0xdaac5a0abe5bb422c4127976c15ce0cba091ef3b012b1c72297f4ce7a822ae5a
     },
     //
     // Useful for private networks
@@ -157,7 +157,7 @@ module.exports = {
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
        settings: {          // See the solidity docs for advice about optimization and evmVersion
         optimizer: {
-          enabled: false,
+          enabled: true,
           runs: 200
         },
         evmVersion: "london"

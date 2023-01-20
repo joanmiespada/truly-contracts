@@ -13,7 +13,7 @@ module.exports = async function (deployer, network, accounts) {
 
     console.log("NFT deployed successfully at address: ", nft.address, " at network: ", network);
 
-  } else if (network === "goerli" || network === "sepolia" || network === "ethmainnet") {
+  } else if (network === "goerli" || network==="goerli-fork" || network === "sepolia" || network === "ethmainnet") {
 
     const address = process.env.METAMASK_ADDRESS_CONTRACT_OWNER;
     console.log("deploy contract from address: ", address)
