@@ -8,6 +8,7 @@ contract LightNFT {
 
     bool public contractPaused;
     string private urlBase;
+    string private contract_version = "0.0.1";
     address private constant ADDRESS_NULL = address(0x0);
     address private _contractOwner;
 
@@ -133,10 +134,7 @@ contract LightNFT {
         uint256 price
     )
         public
-        // string memory uriLicense,
-        // string memory copyright
         isOwner
-        returns (bool)
     {
         require(to != ADDRESS_NULL, "No null address is allowed");
         require(bytes(token).length != 0, "token is mandatory");
@@ -146,9 +144,9 @@ contract LightNFT {
         //require(bytes(hashMetaInfo).length != 0, "hashMetaInfo is mandatory");
         //require(bytes(uriLicense).length != 0, "uriLicense is mandatory");
         //require(bytes(copyright).length != 0, "copyright is mandatory");
-        require(price >= 100, "price must be >=100 wei");
-        require(price % 2 == 0, "price must be even");
-        require(_UsersWithNfts[token].exist == false, "token in use");
+        require(price >= 100, "token price must be >=100 wei");
+        require(price % 2 == 0, "token price must be even");
+        require(_UsersWithNfts[token].exist == false, "token is already in use");
 
         _UsersWithNfts[token].owners[_contractOwner].percentatge = 30;
         _UsersWithNfts[token].owners[_contractOwner].amountToWithdraw = 0;
@@ -171,7 +169,6 @@ contract LightNFT {
 
         emit Minted(to, token);
 
-        return true;
     }
 
     function getStateName(nNftState state)
@@ -190,12 +187,12 @@ contract LightNFT {
         view
         checkIfPaused
         returns (
-            //string memory uriFile,
+              //string memory uriFile,
             string memory hashFile,
-            //string memory uriMetaFile,
-            //string memory hashMetaFile,
-            //string memory uriLicense,
-            //string memory copyright,
+              //string memory uriMetaFile,
+              //string memory hashMetaFile,
+              //string memory uriLicense,
+              //string memory copyright,
             string memory uri,
             uint256 price,
             string memory state
@@ -372,6 +369,9 @@ contract LightNFT {
 
     function getBalance() public view isOwner returns (uint256) {
         return address(this).balance;
+    }
+    function getVersion() public view returns (string memory) {
+        return contract_version;
     }
 
     function buy(

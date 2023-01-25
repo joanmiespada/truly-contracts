@@ -3,6 +3,7 @@ require('dotenv').config();
 
 //var MyNFT = artifacts.require("./PureNFT.sol");
 var NFT = artifacts.require("./LightNFT.sol");
+var SimpleTest = artifacts.require("./SimpleTest.sol");
 
 module.exports = async function (deployer, network, accounts) {
   // deployer.deploy(MyContract);
@@ -12,6 +13,11 @@ module.exports = async function (deployer, network, accounts) {
     const nft = await NFT.deployed();
 
     console.log("NFT deployed successfully at address: ", nft.address, " at network: ", network);
+
+    await deployer.deploy(SimpleTest, { from: accounts[0] });
+    const simple = await SimpleTest.deployed();
+
+    console.log("SimpleTest deployed successfully at address: ", simple.address, " at network: ", network);
 
   } else if (network === "goerli" || network==="goerli-fork" || network === "sepolia" || network === "ethmainnet") {
 
